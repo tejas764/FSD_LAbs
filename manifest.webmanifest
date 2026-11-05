@@ -1,0 +1,37 @@
+{
+  "name": "ResQNet – Offline Disaster Relief Coordination System",
+  "short_name": "ResQNet",
+  "description": "Offline-First Disaster Relief Coordination System for emergency response teams, volunteers, hospitals and relief organizations.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0B1120",
+  "theme_color": "#0B1120",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./dist/images/icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "medical", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Report Emergency",
+      "url": "./index.html#reports",
+      "description": "Log an urgent disaster or medical incident"
+    },
+    {
+      "name": "Disaster Map",
+      "url": "./index.html#map",
+      "description": "View tactical disaster monitoring map"
+    },
+    {
+      "name": "Rescue Teams",
+      "url": "./index.html#teams",
+      "description": "View and dispatch active rescue units"
+    }
+  ]
+}
+
