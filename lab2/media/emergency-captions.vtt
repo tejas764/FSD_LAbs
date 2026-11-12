@@ -1,0 +1,68 @@
+WEBVTT
+Kind: captions
+Language: en
+NOTE Emergency Response Flood Rescue Operations - WebVTT Caption File
+NOTE Authored for ResQNet CSC413-8 Lab Exercise 2
+NOTE Timestamps are illustrative, authored for a 90-second disaster-response training clip.
+
+00:00:01.000 --> 00:00:05.500
+<c.emergency-cue>ALERT: Cyclone Vardha flooding has breached the embankment at Sector 4.</c>
+
+00:00:05.800 --> 00:00:10.200
+<c.location-cue>Location: Krishna Basin, Grid Reference 16.5125° N, 80.6420° E.</c>
+
+00:00:10.500 --> 00:00:15.000
+Emergency teams from the National Disaster Response Force are deploying
+swift water rescue units along the eastern flood corridor.
+
+00:00:15.200 --> 00:00:20.800
+<c.action-cue>NDRF personnel prepare inflatable rescue boats</c>
+at the staging area near Highway 12 Junction.
+
+00:00:21.000 --> 00:00:27.500
+Approximately 165 civilians are confirmed stranded on rooftops
+in the Sector 4 and St. Jude Basin residential zones.
+
+00:00:27.800 --> 00:00:33.200
+<c.emergency-cue>CRITICAL: Bridge collapse reported on River Road near Sector 4.</c>
+All surface approach routes are severed.
+
+00:00:33.500 --> 00:00:39.000
+<c.action-cue>Helicopter evacuation request authorised</c>
+for elderly and medical-priority civilians at Grid Point Alpha-7.
+
+00:00:39.200 --> 00:00:45.500
+Coast Guard marine patrol units are en route via waterway,
+estimated arrival at the flood zone in 12 minutes.
+
+00:00:45.800 --> 00:00:52.000
+Field teams are reporting a critical shortage of potable drinking water
+at the Sunrise School evacuation shelter — currently 340 occupants.
+
+00:00:52.200 --> 00:00:58.500
+<c.location-cue>Field Hospital Alpha is operational at St. Thomas Church, Sector 2.</c>
+Medical triage capacity: 85 beds, 6 ICU units.
+
+00:00:58.800 --> 00:01:05.000
+ResQNet field coordination software is running in offline-first mode.
+<c.action-cue>All incident records are stored locally in browser IndexedDB.</c>
+
+00:01:05.200 --> 00:01:11.500
+Synchronisation queue contains 7 pending reports
+awaiting upload when network connectivity is restored.
+
+00:01:11.800 --> 00:01:18.200
+<c.action-cue>Red Cross Mobile ICU is now on scene</c>
+at the Sector 4 rooftop rescue point. Medical assessment underway.
+
+00:01:18.500 --> 00:01:24.000
+Evacuation Corridor Echo — the northern road through Highway 12 bypass —
+is confirmed clear for outbound civilian movement.
+
+00:01:24.200 --> 00:01:30.500
+<c.emergency-cue>All rescue teams: maintain radio contact on VHF Channel 16.</c>
+Incident Commander is located at EOC Central HQ.
+
+NOTE End of captions for emergency-response.mp4
+NOTE Total duration: approximately 90 seconds
+

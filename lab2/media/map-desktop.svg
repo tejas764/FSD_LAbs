@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600" role="img" aria-label="Illustrative aerial disaster map showing flood-affected zones, evacuation corridors, rescue team positions, and emergency shelters in the Delta Coastal Basin. For demonstration purposes only.">
+  <title>ResQNet Illustrative Disaster Map — Delta Coastal Basin (Desktop Wide View)</title>
+  <desc>An illustrative aerial-style tactical map showing flood zones, rescue positions, evacuation corridors, field hospitals, and shelters. All data is for demonstration purposes only and does not represent real emergency conditions.</desc>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(51,65,85,0.35)" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="fine-grid" width="8" height="8" patternUnits="userSpaceOnUse">
+      <path d="M 8 0 L 0 0 0 8" fill="none" stroke="rgba(51,65,85,0.15)" stroke-width="0.3"/>
+    </pattern>
+    <linearGradient id="flood-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1E40AF" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#075985" stop-opacity="0.65"/>
+    </linearGradient>
+    <linearGradient id="land-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0B1829" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#0F2235" stop-opacity="1"/>
+    </linearGradient>
+    <radialGradient id="critical-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#DC2626" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#DC2626" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="label-bg">
+      <feFlood flood-color="rgba(0,0,0,0.75)" result="bg"/>
+      <feMerge><feMergeNode in="bg"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background — dark land mass -->
+  <rect width="1200" height="600" fill="url(#land-grad)"/>
+  <rect width="1200" height="600" fill="url(#fine-grid)"/>
+  <rect width="1200" height="600" fill="url(#grid)"/>
+
+  <!-- ── WATER BODY (River / Sea) ── -->
+  <path d="M 0,420 Q 200,380 400,410 Q 600,440 800,400 Q 1000,360 1200,390 L1200,600 L0,600 Z" fill="#0C4A6E" opacity="0.9"/>
+  <path d="M 0,440 Q 200,420 400,435 Q 600,450 800,430 Q 1000,415 1200,425 L1200,600 L0,600 Z" fill="#0369A1" opacity="0.5"/>
+  <!-- River course -->
+  <path d="M 350,0 Q 320,100 340,200 Q 360,300 320,420" fill="none" stroke="#0369A1" stroke-width="22" opacity="0.7"/>
+  <path d="M 350,0 Q 320,100 340,200 Q 360,300 320,420" fill="none" stroke="#38BDF8" stroke-width="8" opacity="0.3"/>
+  <!-- Secondary waterway -->
+  <path d="M 700,0 Q 680,80 720,160 Q 760,240 700,330 Q 650,380 640,430" fill="none" stroke="#0369A1" stroke-width="14" opacity="0.6"/>
+
+  <!-- ── FLOOD ZONES ── -->
+  <!-- Primary flood zone (Sector 4) -->
+  <path d="M 280,180 Q 350,160 440,190 Q 520,215 530,270 Q 540,330 480,360 Q 410,390 330,370 Q 250,350 230,290 Q 210,230 280,180 Z" fill="url(#flood-grad)" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="380" y="275" fill="#93C5FD" font-size="10" font-family="monospace" text-anchor="middle" font-weight="bold">FLOOD ZONE A</text>
+  <text x="380" y="288" fill="#60A5FA" font-size="8" font-family="monospace" text-anchor="middle">Sector 4 — SEVERE</text>
+
+  <!-- Secondary flood zone (St. Jude Basin) -->
+  <path d="M 600,230 Q 680,210 750,240 Q 800,265 790,310 Q 780,355 710,370 Q 640,385 600,355 Q 560,325 570,275 Q 580,245 600,230 Z" fill="#1D4ED8" fill-opacity="0.4" stroke="#60A5FA" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="690" y="300" fill="#93C5FD" font-size="10" font-family="monospace" text-anchor="middle" font-weight="bold">FLOOD ZONE B</text>
+  <text x="690" y="313" fill="#60A5FA" font-size="8" font-family="monospace" text-anchor="middle">St. Jude Basin — HIGH</text>
+
+  <!-- Minor flood zone -->
+  <path d="M 820,160 Q 880,145 920,175 Q 950,200 940,240 Q 930,275 880,285 Q 830,295 810,265 Q 790,235 820,160 Z" fill="#1E40AF" fill-opacity="0.3" stroke="#93C5FD" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="875" y="225" fill="#BAE6FD" font-size="8" font-family="monospace" text-anchor="middle">ZONE C — MED</text>
+
+  <!-- ── EVACUATION CORRIDORS ── -->
+  <line x1="100" y1="130" x2="560" y2="130" stroke="#10B981" stroke-width="3" stroke-dasharray="12,5"/>
+  <text x="330" y="122" fill="#34D399" font-size="9" font-family="monospace" text-anchor="middle" font-weight="bold">↑ EVAC CORRIDOR ALPHA — HWY 12 BYPASS ↑</text>
+  <polygon points="560,125 575,130 560,135" fill="#10B981"/>
+
+  <line x1="850" y1="80" x2="1100" y2="80" stroke="#10B981" stroke-width="3" stroke-dasharray="12,5"/>
+  <text x="975" y="72" fill="#34D399" font-size="9" font-family="monospace" text-anchor="middle" font-weight="bold">EVAC CORRIDOR ECHO →</text>
+  <polygon points="1100,75 1115,80 1100,85" fill="#10B981"/>
+
+  <!-- ── ROADS ── -->
+  <!-- Highway 12 -->
+  <line x1="0" y1="150" x2="1200" y2="140" stroke="#475569" stroke-width="6"/>
+  <line x1="0" y1="150" x2="1200" y2="140" stroke="#64748B" stroke-width="2" stroke-dasharray="20,10"/>
+  <text x="60" y="145" fill="#94A3B8" font-size="9" font-family="monospace">HWY 12</text>
+
+  <!-- Road severed indicator -->
+  <line x1="295" y1="148" x2="385" y2="146" stroke="#991B1B" stroke-width="6"/>
+  <text x="340" y="140" fill="#FCA5A5" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">ROAD SEVERED</text>
+
+  <!-- Secondary roads -->
+  <line x1="550" y1="0" x2="550" y2="600" stroke="#374151" stroke-width="3"/>
+  <line x1="900" y1="0" x2="900" y2="600" stroke="#374151" stroke-width="2"/>
+
+  <!-- ── BRIDGE COLLAPSE ── -->
+  <circle cx="340" cy="420" r="30" fill="url(#critical-glow)"/>
+  <line x1="310" y1="400" x2="370" y2="440" stroke="#EF4444" stroke-width="3"/>
+  <line x1="370" y1="400" x2="310" y2="440" stroke="#EF4444" stroke-width="3"/>
+  <circle cx="340" cy="420" r="12" fill="none" stroke="#EF4444" stroke-width="2"/>
+  <text x="340" y="460" fill="#FCA5A5" font-size="9" font-family="monospace" text-anchor="middle" font-weight="bold">BRIDGE COLLAPSE</text>
+  <text x="340" y="472" fill="#94A3B8" font-size="7" font-family="monospace" text-anchor="middle">[INC-2024-0047]</text>
+
+  <!-- ── RESCUE TEAM POSITIONS ── -->
+  <!-- NDRF Swift Water -->
+  <rect x="225" y="230" width="26" height="26" rx="6" fill="#1D4ED8" stroke="#93C5FD" stroke-width="1.5"/>
+  <text x="238" y="247" fill="white" font-size="12" text-anchor="middle">🛡</text>
+  <text x="238" y="268" fill="#93C5FD" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">NDRF-1</text>
+
+  <!-- Coast Guard -->
+  <rect x="460" y="380" width="26" height="26" rx="6" fill="#075985" stroke="#38BDF8" stroke-width="1.5"/>
+  <text x="473" y="397" fill="white" font-size="12" text-anchor="middle">🛡</text>
+  <text x="473" y="418" fill="#38BDF8" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">CG-MAR</text>
+
+  <!-- Civil Defense -->
+  <rect x="510" y="265" width="26" height="26" rx="6" fill="#4C1D95" stroke="#A78BFA" stroke-width="1.5"/>
+  <text x="523" y="282" fill="white" font-size="12" text-anchor="middle">🛡</text>
+  <text x="523" y="303" fill="#A78BFA" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">CIVDEF-3</text>
+
+  <!-- Red Cross ICU -->
+  <rect x="740" y="300" width="26" height="26" rx="6" fill="#7F1D1D" stroke="#FCA5A5" stroke-width="1.5"/>
+  <text x="753" y="317" fill="white" font-size="12" text-anchor="middle">🛡</text>
+  <text x="753" y="338" fill="#FCA5A5" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">RC-ICU</text>
+
+  <!-- Aviation -->
+  <rect x="1050" y="200" width="26" height="26" rx="6" fill="#134E4A" stroke="#34D399" stroke-width="1.5"/>
+  <text x="1063" y="217" fill="white" font-size="12" text-anchor="middle">🚁</text>
+  <text x="1063" y="238" fill="#34D399" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">AVN-HEL</text>
+
+  <!-- ── SHELTERS ── -->
+  <!-- Shelter 1 -->
+  <rect x="100" y="68" width="28" height="28" rx="6" fill="#064E3B" stroke="#34D399" stroke-width="1.5"/>
+  <text x="114" y="87" fill="white" font-size="13" text-anchor="middle">⛺</text>
+  <text x="114" y="107" fill="#34D399" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">SHLT-A</text>
+  <text x="114" y="118" fill="#6EE7B7" font-size="7" font-family="monospace" text-anchor="middle">340/400 occ.</text>
+
+  <!-- Shelter 2 -->
+  <rect x="1100" y="300" width="28" height="28" rx="6" fill="#064E3B" stroke="#34D399" stroke-width="1.5"/>
+  <text x="1114" y="319" fill="white" font-size="13" text-anchor="middle">⛺</text>
+  <text x="1114" y="339" fill="#34D399" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">SHLT-B</text>
+  <text x="1114" y="350" fill="#6EE7B7" font-size="7" font-family="monospace" text-anchor="middle">210/350 occ.</text>
+
+  <!-- ── FIELD HOSPITALS ── -->
+  <rect x="930" y="300" width="28" height="28" rx="6" fill="#083344" stroke="#38BDF8" stroke-width="1.5"/>
+  <text x="944" y="319" fill="white" font-size="13" text-anchor="middle">🏥</text>
+  <text x="944" y="339" fill="#38BDF8" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">FH-ALPHA</text>
+  <text x="944" y="350" fill="#BAE6FD" font-size="7" font-family="monospace" text-anchor="middle">85 beds | 6 ICU</text>
+
+  <rect x="200" y="68" width="28" height="28" rx="6" fill="#083344" stroke="#38BDF8" stroke-width="1.5"/>
+  <text x="214" y="87" fill="white" font-size="13" text-anchor="middle">🏥</text>
+  <text x="214" y="107" fill="#38BDF8" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">FH-BETA</text>
+  <text x="214" y="118" fill="#BAE6FD" font-size="7" font-family="monospace" text-anchor="middle">40 beds | 2 ICU</text>
+
+  <!-- ── COORDINATE GRID LABELS ── -->
+  <text x="10" y="20" fill="#475569" font-size="8" font-family="monospace">16.52°N</text>
+  <text x="10" y="200" fill="#475569" font-size="8" font-family="monospace">16.50°N</text>
+  <text x="10" y="400" fill="#475569" font-size="8" font-family="monospace">16.48°N</text>
+  <text x="200" y="590" fill="#475569" font-size="8" font-family="monospace">80.62°E</text>
+  <text x="560" y="590" fill="#475569" font-size="8" font-family="monospace">80.64°E</text>
+  <text x="900" y="590" fill="#475569" font-size="8" font-family="monospace">80.66°E</text>
+
+  <!-- ── LEGEND ── -->
+  <rect x="10" y="440" width="200" height="150" rx="8" fill="rgba(11,24,41,0.92)" stroke="#1E293B" stroke-width="1"/>
+  <text x="20" y="458" fill="#94A3B8" font-size="8.5" font-family="monospace" font-weight="bold" text-transform="uppercase">MAP LEGEND</text>
+  <rect x="20" y="465" width="12" height="8" rx="2" fill="#1D4ED8" fill-opacity="0.5" stroke="#3B82F6" stroke-width="1"/>
+  <text x="38" y="474" fill="#CBD5E1" font-size="7.5" font-family="monospace">Flood Zone</text>
+  <rect x="20" y="480" width="12" height="8" rx="4" fill="#1D4ED8" stroke="#93C5FD" stroke-width="1"/>
+  <text x="38" y="489" fill="#CBD5E1" font-size="7.5" font-family="monospace">Rescue Team (Shield)</text>
+  <rect x="20" y="495" width="12" height="8" rx="4" fill="#064E3B" stroke="#34D399" stroke-width="1"/>
+  <text x="38" y="504" fill="#CBD5E1" font-size="7.5" font-family="monospace">Evacuation Shelter</text>
+  <rect x="20" y="510" width="12" height="8" rx="4" fill="#083344" stroke="#38BDF8" stroke-width="1"/>
+  <text x="38" y="519" fill="#CBD5E1" font-size="7.5" font-family="monospace">Field Hospital</text>
+  <line x1="20" y1="528" x2="32" y2="528" stroke="#10B981" stroke-width="2" stroke-dasharray="4,2"/>
+  <text x="38" y="533" fill="#CBD5E1" font-size="7.5" font-family="monospace">Evacuation Corridor</text>
+  <circle cx="26" cy="543" r="6" fill="#991B1B"/>
+  <text x="38" y="548" fill="#CBD5E1" font-size="7.5" font-family="monospace">Bridge Collapse (Critical)</text>
+  <text x="20" y="563" fill="#64748B" font-size="6.5" font-family="monospace" font-style="italic">⚠ ILLUSTRATIVE — NOT live data</text>
+  <text x="20" y="574" fill="#64748B" font-size="6.5" font-family="monospace" font-style="italic">ResQNet CSC413-8 Lab 2 Demo</text>
+
+  <!-- Scale bar -->
+  <line x1="1050" y1="568" x2="1150" y2="568" stroke="#475569" stroke-width="1.5"/>
+  <line x1="1050" y1="563" x2="1050" y2="573" stroke="#475569" stroke-width="1.5"/>
+  <line x1="1150" y1="563" x2="1150" y2="573" stroke="#475569" stroke-width="1.5"/>
+  <text x="1100" y="582" fill="#475569" font-size="8" font-family="monospace" text-anchor="middle">≈ 2 km (illustrative)</text>
+</svg>
+

@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ResQNet – Offline-First Disaster Relief Coordination System. Emergency information page for Delta Coastal Basin flood and cyclone response operations. CSC413-8 Lab Exercise 2 — Illustrative demonstration page.">
+  <meta name="theme-color" content="#0B1120">
+  <title>ResQNet – Emergency Response | Delta Coastal Basin | CSC413-8 Lab 2</title>
+  <link rel="icon" type="image/svg+xml" href="media/icon.svg">
+  <!-- Local compiled Tailwind CSS 3 — zero CDN dependency -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- =========================================================
+       SKIP NAVIGATION — Accessibility (keyboard users)
+  ========================================================= -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- =========================================================
+       CSS-ONLY FILTER CONTROLS — Must be before filtered content
+       :checked pseudo-class drives incident and team filters
+  ========================================================= -->
+  <!-- Incident severity filter radio buttons (visually hidden) -->
+  <input type="radio" id="inc-filter-all"      name="inc-filter" class="sr-only" checked>
+  <input type="radio" id="inc-filter-critical" name="inc-filter" class="sr-only">
+  <input type="radio" id="inc-filter-high"     name="inc-filter" class="sr-only">
+  <input type="radio" id="inc-filter-medium"   name="inc-filter" class="sr-only">
+  <input type="radio" id="inc-filter-low"      name="inc-filter" class="sr-only">
+
+  <!-- Team status filter radio buttons (visually hidden) -->
+  <input type="radio" id="team-filter-all"      name="team-filter" class="sr-only" checked>
+  <input type="radio" id="team-filter-deployed" name="team-filter" class="sr-only">
+  <input type="radio" id="team-filter-available" name="team-filter" class="sr-only">
+  <input type="radio" id="team-filter-standby"  name="team-filter" class="sr-only">
+
+  <!-- CSS-Only Dark / Light Theme Toggle Checkbox (visually hidden) -->
+  <input type="checkbox" id="theme-mode-toggle" class="sr-only" aria-label="Toggle between Dark Tactical Mode and Daylight Light Mode">
+
+  <!-- =========================================================
+       SECTION 1 — EMERGENCY HEADER
+  ========================================================= -->
+  <header class="site-header bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
+
+    <!-- DEFCON Alert Banner -->
+    <div class="defcon-alert-banner defcon-alert-pulse bg-red-950 border-b border-red-800/60 px-4 py-1.5">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2 text-xs">
+          <span class="pulse-dot bg-red-500 w-2 h-2 rounded-full" aria-hidden="true"></span>
+          <span class="font-black text-red-300 uppercase tracking-widest">DEFCON Level 3</span>
+          <span class="text-red-200">— Severe Disaster Alert — Delta Coastal Basin</span>
+        </div>
+        <div class="text-xs text-red-300 font-mono flex items-center gap-3">
+          <span>Cyclone Vardha + Krishna Basin Flash Flood</span>
+          <span class="data-label">ILLUSTRATIVE DATA</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main header row -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="site-header-inner flex items-center justify-between h-16 gap-4">
+
+        <!-- Logo & branding -->
+        <div class="flex items-center gap-3">
+          <a href="#main-content" class="flex items-center gap-2.5 group nav-link px-0">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-red-600 p-0.5 shadow-md shadow-blue-900/40">
+              <div class="w-full h-full bg-slate-900 rounded-[9px] flex items-center justify-center">
+                <img src="media/icon.svg" alt="ResQNet shield logo" width="28" height="28" class="w-7 h-7">
+              </div>
+            </div>
+            <div>
+              <div class="text-xl font-black tracking-tight text-white font-mono">
+                ResQ<span class="text-blue-500">Net</span>
+              </div>
+              <p class="text-xs text-slate-400 font-medium tracking-wide">Connecting Help. Saving Lives.</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- DEFCON status (desktop) -->
+        <div class="defcon-status-bar hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-950/80 border border-red-800/40 text-xs">
+          <span class="pulse-dot w-2.5 h-2.5 rounded-full bg-red-500" aria-hidden="true"></span>
+          <span class="font-bold text-red-400 uppercase tracking-wide">DEFCON 3 ALERT:</span>
+          <span class="text-slate-200">Level 3 Severe — Delta Coastal Basin</span>
+        </div>
+
+        <!-- Connectivity, sync status, and Dark/Light Mode toggle -->
+        <div class="flex items-center gap-2.5">
+          <!-- CSS-only Dark / Light Mode Toggle Button -->
+          <label for="theme-mode-toggle" class="theme-toggle-label" title="Toggle between Dark Tactical Mode and Daylight Light Mode" tabindex="0" role="button" aria-label="Toggle between dark tactical mode and daylight light mode">
+            <span class="theme-icon-dark" aria-hidden="true">🌙 <span class="hidden sm:inline">Dark</span></span>
+            <span class="theme-icon-light" aria-hidden="true">☀️ <span class="hidden sm:inline">Light</span></span>
+          </label>
+
+          <!-- Online badge -->
+          <div class="online-badge connectivity-indicator inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/90 text-emerald-300 border border-emerald-500/40" role="status" aria-label="Network status: Online">
+            <span class="pulse-dot w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true"></span>
+            <span>ONLINE</span>
+          </div>
+          <!-- Sync queue pill -->
+          <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-xs font-medium" title="Offline sync queue status">
+            <span aria-hidden="true">🔄</span>
+            <span class="hidden md:inline">Queue:</span>
+            <span class="font-bold text-amber-400">7</span>
+            <span class="text-slate-500">pending</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="border-t border-slate-800/80 bg-slate-900/60" aria-label="Main navigation">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="nav-scroll-row flex items-center gap-1 py-1.5 overflow-x-auto">
+          <a href="#overview"   class="nav-link whitespace-nowrap"><span aria-hidden="true">📊</span> Overview</a>
+          <a href="#incidents"  class="nav-link whitespace-nowrap"><span aria-hidden="true">🚨</span> Incidents</a>
+          <a href="#teams"      class="nav-link whitespace-nowrap"><span aria-hidden="true">🛡️</span> Teams</a>
+          <a href="#gis"        class="nav-link whitespace-nowrap"><span aria-hidden="true">🗺️</span> GIS Map</a>
+          <a href="#resources"  class="nav-link whitespace-nowrap"><span aria-hidden="true">📦</span> Resources</a>
+          <a href="#shelters"   class="nav-link whitespace-nowrap"><span aria-hidden="true">🏥</span> Shelters</a>
+          <a href="#offline"    class="nav-link whitespace-nowrap"><span aria-hidden="true">⚡</span> Offline Ops</a>
+          <a href="#report"     class="nav-link whitespace-nowrap"><span aria-hidden="true">📋</span> Field Report</a>
+          <a href="#video-section" class="nav-link whitespace-nowrap"><span aria-hidden="true">🎥</span> Video</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- =========================================================
+       MAIN CONTENT
+  ========================================================= -->
+  <main id="main-content" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
+
+    <!-- =====================================================
+         SECTION 2 — EMERGENCY SITUATION OVERVIEW
+    ===================================================== -->
+    <section id="overview" class="overview-section space-y-6" aria-labelledby="overview-heading">
+
+      <!-- Hero banner -->
+      <div class="hero-section relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-950 via-slate-900 to-slate-950 border border-slate-800 p-8 sm:p-10 shadow-2xl">
+        <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" aria-hidden="true"></div>
+        <div class="relative z-10 max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-950/80 text-red-300 border border-red-500/40 mb-4">
+            <span aria-hidden="true">🚨</span>
+            <span>Active Emergency Response — Delta Coastal Basin</span>
+          </div>
+          <h1 id="overview-heading" class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+            ResQNet<br>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-indigo-400">Emergency Response Dashboard</span>
+          </h1>
+          <p class="text-base sm:text-lg text-slate-300 mt-4 leading-relaxed">
+            Offline-first disaster coordination for Cyclone Vardha and Krishna Basin flash flood operations. All field teams, rescue boats, medical units, and evacuation corridors coordinated through ResQNet's local-first architecture.
+          </p>
+          <!-- Responsive picture element — Part B: different compositions for desktop vs mobile -->
+          <div class="mt-6 rounded-xl overflow-hidden border border-slate-700/40 shadow-xl max-h-56 print-hide">
+            <picture>
+              <!-- Mobile image: portrait close-up rescue boat (different composition) -->
+              <source media="(width < 640px)" srcset="media/map-mobile.svg" type="image/svg+xml">
+              <!-- Default: wide aerial disaster map view -->
+              <img
+                src="media/map-desktop.svg"
+                alt="Illustrative aerial disaster map showing flood-affected zones, rescue team positions, evacuation corridors, and emergency shelters in the Delta Coastal Basin. For demonstration purposes only — does not represent live emergency data."
+                width="1200"
+                height="300"
+                class="w-full object-cover"
+                loading="lazy">
+            </picture>
+            <p class="text-xs text-center text-slate-500 italic py-1 bg-slate-900/80">
+              ⚠ Illustrative disaster map — not live geographic or emergency data
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Situation summary card -->
+      <div class="resq-card p-6 border-l-4 border-l-red-600">
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-xs font-mono font-bold text-red-400 uppercase">Emergency Situation Directive</span>
+              <span class="data-label">Illustrative</span>
+            </div>
+            <h2 class="text-lg font-bold text-white">Cyclone Vardha &amp; Krishna Basin Flash Inundation</h2>
+            <p class="text-sm text-slate-300 mt-2 leading-relaxed max-w-2xl">
+              District Emergency Zone 7 declared severe flash flood zone following a 15-metre embankment breach at Sector 4. Search and rescue operations active across Delta Coastal Basin. Highway 12 approach severed at bridge. Evacuation centres operating at high capacity. All figures below are illustrative demonstration data — not live emergency statistics.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key statistics grid -->
+      <div class="stat-grid grid grid-cols-2 lg:grid-cols-4 gap-4" role="list" aria-label="Emergency situation statistics">
+
+        <div class="stat-card resq-card p-5 border-t-4 border-t-red-600" role="listitem">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span class="font-semibold uppercase tracking-wider">Critical Incidents</span>
+            <span aria-hidden="true" class="text-red-500 text-base">🚨</span>
+          </div>
+          <div class="text-3xl font-black text-white" aria-label="3 critical incidents">3</div>
+          <div class="mt-2 pt-2 border-t border-slate-800 text-xs text-red-400 font-semibold">Life-threatening — Act immediately</div>
+        </div>
+
+        <div class="stat-card resq-card p-5 border-t-4 border-t-blue-600" role="listitem">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span class="font-semibold uppercase tracking-wider">Rescue Teams</span>
+            <span aria-hidden="true" class="text-blue-500 text-base">🛡️</span>
+          </div>
+          <div class="text-3xl font-black text-white" aria-label="6 rescue teams, 4 deployed">6</div>
+          <div class="mt-2 pt-2 border-t border-slate-800 text-xs text-blue-400">4 deployed · 1 available · 1 standby</div>
+        </div>
+
+        <div class="stat-card resq-card p-5 border-t-4 border-t-amber-600" role="listitem">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span class="font-semibold uppercase tracking-wider">People Affected</span>
+            <span aria-hidden="true" class="text-amber-500 text-base">👥</span>
+          </div>
+          <div class="text-3xl font-black text-white" aria-label="Approximately 165 people affected">165+</div>
+          <div class="mt-2 pt-2 border-t border-slate-800 text-xs text-amber-400">Sector 4 &amp; St. Jude Basin</div>
+        </div>
+
+        <div class="stat-card resq-card p-5 border-t-4 border-t-emerald-600" role="listitem">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span class="font-semibold uppercase tracking-wider">Flood-Affected Areas</span>
+            <span aria-hidden="true" class="text-emerald-500 text-base">🌊</span>
+          </div>
+          <div class="text-3xl font-black text-white" aria-label="3 flood-affected zones">3</div>
+          <div class="mt-2 pt-2 border-t border-slate-800 text-xs text-emerald-400">Zones A, B &amp; C active</div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =====================================================
+         SECTION 3 — CRITICAL INCIDENT PRIORITY
+         :checked filter + :has() + :nth-child() + :not()
+    ===================================================== -->
+    <section id="incidents" class="incident-section space-y-5" aria-labelledby="incidents-heading">
+
+      <div class="section-intro flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 id="incidents-heading" class="section-heading">
+            <span aria-hidden="true">🚨</span> Critical Incident Priority Queue
+          </h2>
+          <p class="text-sm text-slate-400">Active incidents prioritised by severity. All data is illustrative. <span class="data-label">Demonstration</span></p>
+        </div>
+      </div>
+
+      <!-- CSS-only severity filter bar — labels tied to hidden radio inputs above -->
+      <div class="filter-bar flex flex-wrap gap-2" role="group" aria-label="Filter incidents by severity">
+        <label for="inc-filter-all"      class="filter-label" tabindex="0"><span aria-hidden="true">◼</span> All Incidents</label>
+        <label for="inc-filter-critical" class="filter-label" tabindex="0"><span aria-hidden="true">◆</span> Critical</label>
+        <label for="inc-filter-high"     class="filter-label" tabindex="0"><span aria-hidden="true">◆</span> High</label>
+        <label for="inc-filter-medium"   class="filter-label" tabindex="0"><span aria-hidden="true">◆</span> Medium</label>
+        <label for="inc-filter-low"      class="filter-label" tabindex="0"><span aria-hidden="true">◆</span> Low</label>
+      </div>
+
+      <!-- Incident list — filtered by :checked radio state via CSS -->
+      <div class="incident-list space-y-3" role="list" aria-label="Incident list">
+
+        <!-- Incident 1: CRITICAL — Bridge Collapse -->
+        <article class="incident-card inc-critical resq-card bg-red-950/20" role="listitem" aria-label="Critical incident: Bridge Collapse at Sector 4">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="badge-critical" aria-label="Severity: Critical">
+                  <span aria-hidden="true" class="severity-symbol">★★★</span> CRITICAL
+                </span>
+                <span class="text-xs font-mono text-slate-400">INC-2024-0047</span>
+                <span class="badge-sync-pending"><span aria-hidden="true">🔄</span> Pending Sync</span>
+              </div>
+              <h3 class="text-base font-bold text-white mb-1 card-severity-label">Bridge Structural Collapse — Sector 4 River Road</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">Major bridge spanning the Krishna tributary has collapsed. All vehicle approach to Sector 4 flood zone now severed. NDRF swift water units rerouting via waterway. 12 persons confirmed trapped in adjacent structures.</p>
+              <div class="mt-2 flex flex-wrap gap-3 text-xs text-slate-400">
+                <span><strong class="text-slate-200">Location:</strong> River Road, Sector 4</span>
+                <span class="coord-label">16.5125°N, 80.6420°E</span>
+                <span><strong class="text-slate-200">Affected:</strong> 12 trapped + road closure</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-xs text-slate-500 mb-1">Assigned Team</div>
+              <div class="badge-team-deployed"><span aria-hidden="true">🛡️</span> NDRF-1</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Incident 2: CRITICAL — Flood Settlements -->
+        <article class="incident-card inc-critical resq-card bg-red-950/20" role="listitem" aria-label="Critical incident: Flood-affected settlements with stranded civilians">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="badge-critical" aria-label="Severity: Critical">
+                  <span aria-hidden="true" class="severity-symbol">★★★</span> CRITICAL
+                </span>
+                <span class="text-xs font-mono text-slate-400">INC-2024-0048</span>
+                <span class="badge-sync-pending"><span aria-hidden="true">🔄</span> Pending Sync</span>
+              </div>
+              <h3 class="text-base font-bold text-white mb-1 card-severity-label">Flood-Affected Settlements — Rooftop Stranded Civilians</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">153 civilians confirmed stranded on rooftops across Sector 4 and St. Jude Basin residential settlements. Water level 2.4m above road surface. Medical attention needed for 18 persons (elderly, infants, injured).</p>
+              <div class="mt-2 flex flex-wrap gap-3 text-xs text-slate-400">
+                <span><strong class="text-slate-200">Location:</strong> Sector 4 &amp; St. Jude Basin</span>
+                <span class="coord-label">16.5080°N, 80.6391°E</span>
+                <span><strong class="text-slate-200">Affected:</strong> 153 civilians stranded</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-xs text-slate-500 mb-1">Assigned Teams</div>
+              <div class="badge-team-deployed"><span aria-hidden="true">🛡️</span> CG-MAR + AVN-HEL</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Incident 3: CRITICAL — Medical Evacuation -->
+        <article class="incident-card inc-critical resq-card bg-red-950/20" role="listitem" aria-label="Critical incident: Medical evacuation request">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="badge-critical" aria-label="Severity: Critical">
+                  <span aria-hidden="true" class="severity-symbol">★★★</span> CRITICAL
+                </span>
+                <span class="text-xs font-mono text-slate-400">INC-2024-0051</span>
+                <span class="badge-sync-synced"><span aria-hidden="true">✓</span> Synced</span>
+              </div>
+              <h3 class="text-base font-bold text-white mb-1 card-severity-label">Medical Evacuation — Cardiac &amp; Obstetric Emergency</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">Two life-threatening medical cases reported: one cardiac arrest and one obstetric emergency in progress. Both patients in Sector 4 zone. Helicopter evacuation authorised. Red Cross Mobile ICU en route.</p>
+              <div class="mt-2 flex flex-wrap gap-3 text-xs text-slate-400">
+                <span><strong class="text-slate-200">Location:</strong> Sector 4 — Grid Alpha-7</span>
+                <span class="coord-label">16.5110°N, 80.6405°E</span>
+                <span><strong class="text-slate-200">Affected:</strong> 2 critical patients</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-xs text-slate-500 mb-1">Assigned Team</div>
+              <div class="badge-team-deployed"><span aria-hidden="true">🏥</span> RC-ICU + AVN-HEL</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Incident 4: HIGH -->
+        <article class="incident-card inc-high resq-card" role="listitem" aria-label="High severity incident: Water and food shortage">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="badge-high" aria-label="Severity: High">
+                  <span aria-hidden="true" class="severity-symbol">★★</span> HIGH
+                </span>
+                <span class="text-xs font-mono text-slate-400">INC-2024-0052</span>
+                <span class="badge-sync-synced"><span aria-hidden="true">✓</span> Synced</span>
+              </div>
+              <h3 class="text-base font-bold text-white mb-1 card-severity-label">Critical Water &amp; Food Shortage — Sunrise School Shelter</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">Sunrise School evacuation shelter holding 340 civilians has exhausted drinking water supply. Food rations will last approximately 6 more hours. Generator fuel at 15%. Urgent resupply convoy required.</p>
+              <div class="mt-2 flex flex-wrap gap-3 text-xs text-slate-400">
+                <span><strong class="text-slate-200">Location:</strong> Sunrise School, Ward 12</span>
+                <span class="coord-label">16.5060°N, 80.6350°E</span>
+                <span><strong class="text-slate-200">Affected:</strong> 340 civilians</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-xs text-slate-500 mb-1">Assigned Team</div>
+              <div class="badge-team-deployed"><span aria-hidden="true">📦</span> CIVDEF-3</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Incident 5: HIGH -->
+        <article class="incident-card inc-high resq-card" role="listitem" aria-label="High severity incident: Embankment breach">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="badge-high" aria-label="Severity: High">
+                  <span aria-hidden="true" class="severity-symbol">★★</span> HIGH
+                </span>
+                <span class="text-xs font-mono text-slate-400">INC-2024-0049</span>
+                <span class="badge-sync-pending"><span aria-hidden="true">🔄</span> Pending Sync</span>
+              </div>
+              <h3 class="text-base font-bold text-white mb-1 card-severity-label">Embankment Breach — 15-Metre Section Failure</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">Secondary embankment breach reported along the northern levee of Sector 4. Breach width approximately 15 metres. Additional inundation of 40 hectares expected within 2 hours if not contained. Civil Defense heavy shoring team on site.</p>
+              <div class="mt-2 flex flex-wrap gap-3 text-xs text-slate-400">
+                <span><strong class="text-slate-200">Location:</strong> Northern Levee, Sector 4</span>
+                <span class="coord-label">16.5160°N, 80.6450°E</span>
+                <span><strong class="text-slate-200">Affected:</strong> 40 ha at risk</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-xs text-slate-500 mb-1">Assigned Team</div>
+              <div class="badge-team-deployed"><span aria-hidden="true">🛡️</span> CIVDEF-3</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Incident 6: MEDIUM -->
+        <article class="incident-card inc-medium resq-card" role="listitem" aria-label="Medium severity incident: Power substation failure">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="badge-medium" aria-label="Severity: Medium">
+                  <span aria-hidden="true" class="severity-symbol">★</span> MEDIUM
+                </span>
+                <span class="text-xs font-mono text-slate-400">INC-2024-0053</span>
+                <span class="badge-sync-synced"><span aria-hidden="true">✓</span> Synced</span>
+              </div>
+              <h3 class="text-base font-bold text-white mb-1 card-severity-label">Power Substation Failure — Sector 2</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">Flood water has disabled the Sector 2 electrical substation. Portable generators deployed to Field Hospital Alpha and two evacuation shelters. Electrical grid restoration estimated 36+ hours.</p>
+              <div class="mt-2 flex flex-wrap gap-3 text-xs text-slate-400">
+                <span><strong class="text-slate-200">Location:</strong> Sector 2 Substation</span>
+                <span class="coord-label">16.5040°N, 80.6320°E</span>
+                <span><strong class="text-slate-200">Affected:</strong> 2 shelters + hospital</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-xs text-slate-500 mb-1">Status</div>
+              <div class="badge-team-available"><span aria-hidden="true">⚡</span> Generator Active</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Incident 7: LOW -->
+        <article class="incident-card inc-low resq-card" role="listitem" aria-label="Low severity incident: Road waterlogging">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="badge-low" aria-label="Severity: Low">
+                  <span aria-hidden="true" class="severity-symbol">—</span> LOW
+                </span>
+                <span class="text-xs font-mono text-slate-400">INC-2024-0054</span>
+                <span class="badge-sync-synced"><span aria-hidden="true">✓</span> Synced</span>
+              </div>
+              <h3 class="text-base font-bold text-white mb-1 card-severity-label">Road Waterlogging — Highway Bypass Sector 6</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">Surface waterlogging on Highway bypass ramp, Sector 6. Depth approximately 0.3m. Passable for high-clearance emergency vehicles. Advisory issued; civilian traffic diverted via Ring Road alternate route.</p>
+              <div class="mt-2 flex flex-wrap gap-3 text-xs text-slate-400">
+                <span><strong class="text-slate-200">Location:</strong> HWY Bypass, Sector 6</span>
+                <span class="coord-label">16.5020°N, 80.6500°E</span>
+                <span><strong class="text-slate-200">Affected:</strong> Highway traffic</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-xs text-slate-500 mb-1">Status</div>
+              <div class="badge-team-standby"><span aria-hidden="true">⚠</span> Monitoring</div>
+            </div>
+          </div>
+        </article>
+
+      </div><!-- /.incident-list -->
+
+      <!-- :empty demo — intentionally empty for CSS :empty pseudo-class demonstration -->
+      <div class="empty-state-demo mt-2" aria-label="No resolved incidents in queue" role="note"></div>
+
+    </section><!-- /#incidents -->
+
+    <!-- =====================================================
+         SECTION 4 — RESCUE TEAM DEPLOYMENT
+         :checked team filter + :has() + :not()
+    ===================================================== -->
+    <section id="teams" class="teams-section space-y-5" aria-labelledby="teams-heading">
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 id="teams-heading" class="section-heading">
+            <span aria-hidden="true">🛡️</span> Rescue Team Deployment
+          </h2>
+          <p class="text-sm text-slate-400">Active rescue units, assigned areas, and operational responsibilities. <span class="data-label">Illustrative</span></p>
+        </div>
+      </div>
+
+      <!-- Team status filter -->
+      <div class="team-filter-bar flex flex-wrap gap-2" role="group" aria-label="Filter teams by status">
+        <label for="team-filter-all"       class="filter-label" tabindex="0"><span aria-hidden="true">◼</span> All Teams</label>
+        <label for="team-filter-deployed"  class="filter-label" tabindex="0"><span aria-hidden="true">🔵</span> Deployed</label>
+        <label for="team-filter-available" class="filter-label" tabindex="0"><span aria-hidden="true">🟢</span> Available</label>
+        <label for="team-filter-standby"   class="filter-label" tabindex="0"><span aria-hidden="true">⚫</span> Standby</label>
+      </div>
+
+      <div class="team-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" role="list" aria-label="Rescue teams">
+
+        <!-- NDRF Swift Water -->
+        <article class="team-card team-deployed resq-card" role="listitem" aria-label="NDRF Swift Water Rescue team, deployed">
+          <div class="flex items-start justify-between gap-2 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-950/60 border border-blue-500/30 flex items-center justify-center text-xl shrink-0" aria-hidden="true">🛡️</div>
+            <span class="badge-team-deployed ml-auto"><span aria-hidden="true">●</span> Deployed</span>
+          </div>
+          <h3 class="text-sm font-bold text-white mb-1">NDRF Swift Water Rescue</h3>
+          <p class="text-xs text-blue-400 font-semibold mb-2">Unit: NDRF-1 | 12 personnel</p>
+          <dl class="text-xs text-slate-300 space-y-1">
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Area:</dt><dd>Sector 4 River Road &amp; Embankment</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Role:</dt><dd>Swift water rescue, rooftop extraction</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Assets:</dt><dd>4 inflatable rescue boats, life lines</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Contact:</dt><dd class="font-mono">VHF CH-16 / NDRF-HQ</dd></div>
+          </dl>
+        </article>
+
+        <!-- Coast Guard Marine -->
+        <article class="team-card team-deployed resq-card" role="listitem" aria-label="Coast Guard Marine Patrol, deployed">
+          <div class="flex items-start justify-between gap-2 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-cyan-950/60 border border-cyan-500/30 flex items-center justify-center text-xl shrink-0" aria-hidden="true">⚓</div>
+            <span class="badge-team-deployed ml-auto"><span aria-hidden="true">●</span> Deployed</span>
+          </div>
+          <h3 class="text-sm font-bold text-white mb-1">Coast Guard Marine Patrol</h3>
+          <p class="text-xs text-cyan-400 font-semibold mb-2">Unit: CG-MAR | 8 personnel</p>
+          <dl class="text-xs text-slate-300 space-y-1">
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Area:</dt><dd>St. Jude Basin waterway &amp; coastline</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Role:</dt><dd>Civilian boat rescue, water perimeter</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Assets:</dt><dd>2 patrol vessels, diving gear</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Contact:</dt><dd class="font-mono">VHF CH-16 / CGMR-CMD</dd></div>
+          </dl>
+        </article>
+
+        <!-- Civil Defense Shoring -->
+        <article class="team-card team-deployed resq-card" role="listitem" aria-label="Civil Defense Heavy Shoring, deployed">
+          <div class="flex items-start justify-between gap-2 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-950/60 border border-indigo-500/30 flex items-center justify-center text-xl shrink-0" aria-hidden="true">🏗️</div>
+            <span class="badge-team-deployed ml-auto"><span aria-hidden="true">●</span> Deployed</span>
+          </div>
+          <h3 class="text-sm font-bold text-white mb-1">Civil Defense Heavy Shoring</h3>
+          <p class="text-xs text-indigo-400 font-semibold mb-2">Unit: CIVDEF-3 | 20 personnel</p>
+          <dl class="text-xs text-slate-300 space-y-1">
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Area:</dt><dd>Northern Levee, Sector 4 breach point</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Role:</dt><dd>Embankment shoring, structure safety</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Assets:</dt><dd>Heavy machinery, sandbag units</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Contact:</dt><dd class="font-mono">VHF CH-8 / CIVD-HQ</dd></div>
+          </dl>
+        </article>
+
+        <!-- Red Cross ICU -->
+        <article class="team-card team-deployed resq-card" role="listitem" aria-label="Red Cross Mobile ICU, deployed">
+          <div class="flex items-start justify-between gap-2 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-red-950/60 border border-red-500/30 flex items-center justify-center text-xl shrink-0" aria-hidden="true">🏥</div>
+            <span class="badge-team-deployed ml-auto"><span aria-hidden="true">●</span> Deployed</span>
+          </div>
+          <h3 class="text-sm font-bold text-white mb-1">Red Cross Mobile ICU</h3>
+          <p class="text-xs text-red-400 font-semibold mb-2">Unit: RC-ICU | 6 personnel</p>
+          <dl class="text-xs text-slate-300 space-y-1">
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Area:</dt><dd>Sector 4 — Grid Alpha-7 (medical evac)</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Role:</dt><dd>Critical care triage, field stabilisation</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Assets:</dt><dd>Mobile ICU van, defibrillators, IV kits</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Contact:</dt><dd class="font-mono">VHF CH-16 / RC-MED</dd></div>
+          </dl>
+        </article>
+
+        <!-- Volunteer SAR -->
+        <article class="team-card team-available resq-card" role="listitem" aria-label="Volunteer Search and Rescue, available">
+          <div class="flex items-start justify-between gap-2 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-950/60 border border-emerald-500/30 flex items-center justify-center text-xl shrink-0" aria-hidden="true">🧑‍🚒</div>
+            <span class="badge-team-available ml-auto"><span aria-hidden="true">●</span> Available</span>
+          </div>
+          <h3 class="text-sm font-bold text-white mb-1">Volunteer Search &amp; Rescue</h3>
+          <p class="text-xs text-emerald-400 font-semibold mb-2">Unit: VSR-7 | 35 personnel</p>
+          <dl class="text-xs text-slate-300 space-y-1">
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Area:</dt><dd>Sector 6 — Staging Area Ready</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Role:</dt><dd>Search, logistics, shelter support</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Assets:</dt><dd>Personal boats, first-aid, radios</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Contact:</dt><dd class="font-mono">VHF CH-16 / VSR-CMD</dd></div>
+          </dl>
+        </article>
+
+        <!-- Aviation Helicopter -->
+        <article class="team-card team-standby resq-card" role="listitem" aria-label="Aviation Helicopter Evacuation, standby">
+          <div class="flex items-start justify-between gap-2 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-slate-800/60 border border-slate-600/30 flex items-center justify-center text-xl shrink-0" aria-hidden="true">🚁</div>
+            <span class="badge-team-standby ml-auto"><span aria-hidden="true">◌</span> Standby</span>
+          </div>
+          <h3 class="text-sm font-bold text-white mb-1">Aviation Helicopter Evacuation</h3>
+          <p class="text-xs text-slate-400 font-semibold mb-2">Unit: AVN-HEL | 4 personnel</p>
+          <dl class="text-xs text-slate-300 space-y-1">
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Area:</dt><dd>District Airstrip — On-call</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Role:</dt><dd>Critical casualty &amp; medical evac airlift</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Assets:</dt><dd>Mi-17 helicopter, hoist, stretchers</dd></div>
+            <div class="flex gap-2"><dt class="text-slate-500 w-20 shrink-0">Contact:</dt><dd class="font-mono">VHF CH-8 / AVN-HEL</dd></div>
+          </dl>
+        </article>
+
+      </div><!-- /.team-grid -->
+    </section>
+
+    <!-- =====================================================
+         SECTION 5 — DISASTER MONITORING / GIS
+    ===================================================== -->
+    <section id="gis" class="gis-section space-y-4" aria-labelledby="gis-heading">
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 id="gis-heading" class="section-heading">
+            <span aria-hidden="true">🗺️</span> Disaster Monitoring — Tactical GIS View
+          </h2>
+          <p class="text-sm text-slate-400">Illustrative disaster map. Does not use external tiles or live services. <span class="data-label">Static Illustration Only</span></p>
+        </div>
+        <div class="text-xs font-mono text-slate-500">
+          Ref: 16.51°N, 80.64°E | Zone 44N
+        </div>
+      </div>
+
+      <!-- Offline map notice -->
+      <div class="flex items-start gap-3 bg-amber-950/40 border border-amber-700/40 rounded-xl p-3 text-xs text-amber-200" role="note" aria-label="Offline map mode notice">
+        <span class="text-lg" aria-hidden="true">⚠️</span>
+        <p><strong class="text-amber-300">Offline Map Mode:</strong> This page does not connect to external tile servers. The illustrative SVG map below shows approximate flood zone positions, rescue team deployment, evacuation corridors, and shelter/hospital locations for demonstration purposes. Live GIS tile rendering is performed in the main ResQNet PWA application when connectivity is available.</p>
+      </div>
+
+      <!-- GIS Map (SVG embedded inline for tactile control / styling) -->
+      <div class="gis-map-container offline-grid-pattern" role="img" aria-label="Illustrative tactical disaster map of Delta Coastal Basin">
+        <img
+          src="media/map-desktop.svg"
+          alt="Illustrative tactical disaster map showing flood zones A, B and C, rescue team positions (NDRF-1, CG-MAR, CIVDEF-3, RC-ICU, AVN-HEL), evacuation corridors Alpha and Echo, Field Hospitals Alpha and Beta, Shelters A and B, and the bridge collapse site at Sector 4 River Road. All positions are approximate and illustrative. Grid references are approximate: 16.48°N to 16.52°N, 80.62°E to 80.66°E."
+          width="1200"
+          height="600"
+          class="w-full h-full object-cover"
+          loading="lazy">
+      </div>
+
+      <!-- Map legend / coordinate reference -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div class="flex items-center gap-2 text-slate-300"><span class="w-4 h-3 rounded bg-blue-700/60 border border-blue-500 shrink-0" aria-hidden="true"></span>Flood Zone (A/B/C)</div>
+        <div class="flex items-center gap-2 text-slate-300"><span class="w-4 h-4 rounded bg-blue-800 border border-cyan-400 shrink-0 flex items-center justify-center text-xs" aria-hidden="true">🛡</span>Rescue Team</div>
+        <div class="flex items-center gap-2 text-slate-300"><span class="w-4 h-4 rounded bg-emerald-900 border border-emerald-400 shrink-0 flex items-center justify-center text-xs" aria-hidden="true">⛺</span>Evacuation Shelter</div>
+        <div class="flex items-center gap-2 text-slate-300"><span class="w-4 h-4 rounded bg-cyan-900 border border-cyan-400 shrink-0 flex items-center justify-center text-xs" aria-hidden="true">🏥</span>Field Hospital</div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         SECTION 6 — EMERGENCY RESOURCE AVAILABILITY
+    ===================================================== -->
+    <section id="resources" class="resources-section space-y-5" aria-labelledby="resources-heading">
+
+      <div>
+        <h2 id="resources-heading" class="section-heading">
+          <span aria-hidden="true">📦</span> Emergency Resource Availability
+        </h2>
+        <p class="text-sm text-slate-400">Relief inventory levels across all depots. <span class="data-label">Illustrative Data</span></p>
+      </div>
+
+      <div class="resource-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <!-- Water -->
+        <div class="resource-card" role="article" aria-label="Drinking water: critical shortage">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-lg" aria-hidden="true">💧</span>
+              <span class="text-sm font-bold text-white">Drinking Water</span>
+            </div>
+            <span class="badge-critical text-xs py-0.5 px-2" style="animation:none;border:1px solid #EF4444;">⚠ CRITICAL</span>
+          </div>
+          <div class="progress-track mb-1" role="progressbar" aria-valuenow="12" aria-valuemin="0" aria-valuemax="100" aria-label="Drinking water: 12% remaining">
+            <div class="progress-fill bg-red-500" style="width:12%"></div>
+          </div>
+          <div class="flex justify-between text-xs text-slate-400 mb-1">
+            <span>240 litres remaining</span><span>Target: 2,000L</span>
+          </div>
+          <p class="text-xs text-red-400 font-semibold">⚠ Critical shortage — immediate resupply required</p>
+        </div>
+
+        <!-- Food Rations -->
+        <div class="resource-card" role="article" aria-label="Food rations: low stock">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-lg" aria-hidden="true">🍱</span>
+              <span class="text-sm font-bold text-white">Food Rations</span>
+            </div>
+            <span class="badge-high text-xs py-0.5 px-2">⬇ LOW</span>
+          </div>
+          <div class="progress-track mb-1" role="progressbar" aria-valuenow="28" aria-valuemin="0" aria-valuemax="100" aria-label="Food rations: 28% remaining">
+            <div class="progress-fill bg-orange-500" style="width:28%"></div>
+          </div>
+          <div class="flex justify-between text-xs text-slate-400 mb-1">
+            <span>420 packs remaining</span><span>Target: 1,500 packs</span>
+          </div>
+          <p class="text-xs text-orange-400 font-semibold">⬇ Low stock — resupply convoy dispatched</p>
+        </div>
+
+        <!-- Medical Kits -->
+        <div class="resource-card" role="article" aria-label="Medical kits: moderate stock">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-lg" aria-hidden="true">🩺</span>
+              <span class="text-sm font-bold text-white">Medical Kits</span>
+            </div>
+            <span class="badge-medium text-xs py-0.5 px-2">◆ MODERATE</span>
+          </div>
+          <div class="progress-track mb-1" role="progressbar" aria-valuenow="55" aria-valuemin="0" aria-valuemax="100" aria-label="Medical kits: 55% remaining">
+            <div class="progress-fill bg-amber-500" style="width:55%"></div>
+          </div>
+          <div class="flex justify-between text-xs text-slate-400 mb-1">
+            <span>110 kits remaining</span><span>Target: 200 kits</span>
+          </div>
+          <p class="text-xs text-amber-400">Monitor consumption — reorder in 48h</p>
+        </div>
+
+        <!-- First-Aid Packs -->
+        <div class="resource-card" role="article" aria-label="First-aid packs: adequate">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-lg" aria-hidden="true">🩹</span>
+              <span class="text-sm font-bold text-white">First-Aid Packs</span>
+            </div>
+            <span class="badge-low text-xs py-0.5 px-2">✓ ADEQUATE</span>
+          </div>
+          <div class="progress-track mb-1" role="progressbar" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100" aria-label="First-aid packs: 72% remaining">
+            <div class="progress-fill bg-emerald-500" style="width:72%"></div>
+          </div>
+          <div class="flex justify-between text-xs text-slate-400 mb-1">
+            <span>360 packs remaining</span><span>Target: 500 packs</span>
+          </div>
+          <p class="text-xs text-emerald-400">Adequate supply — standard monitoring</p>
+        </div>
+
+        <!-- Rescue Boats -->
+        <div class="resource-card" role="article" aria-label="Rescue boats: deployed">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-lg" aria-hidden="true">🚤</span>
+              <span class="text-sm font-bold text-white">Rescue Boats</span>
+            </div>
+            <span class="badge-medium text-xs py-0.5 px-2">◆ IN USE</span>
+          </div>
+          <div class="progress-track mb-1" role="progressbar" aria-valuenow="67" aria-valuemin="0" aria-valuemax="100" aria-label="Rescue boats: 67% deployed">
+            <div class="progress-fill bg-blue-500" style="width:67%"></div>
+          </div>
+          <div class="flex justify-between text-xs text-slate-400 mb-1">
+            <span>4 of 6 deployed</span><span>2 in reserve</span>
+          </div>
+          <p class="text-xs text-blue-400">4 active — 2 reserve available</p>
+        </div>
+
+        <!-- Portable Generators -->
+        <div class="resource-card" role="article" aria-label="Portable generators: low fuel">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-lg" aria-hidden="true">⚡</span>
+              <span class="text-sm font-bold text-white">Portable Generators</span>
+            </div>
+            <span class="badge-high text-xs py-0.5 px-2">⬇ LOW FUEL</span>
+          </div>
+          <div class="progress-track mb-1" role="progressbar" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100" aria-label="Generator fuel: 15% remaining">
+            <div class="progress-fill bg-orange-500" style="width:15%"></div>
+          </div>
+          <div class="flex justify-between text-xs text-slate-400 mb-1">
+            <span>75L diesel remaining</span><span>500L capacity</span>
+          </div>
+          <p class="text-xs text-orange-400 font-semibold">⬇ Fuel critically low — refuel priority</p>
+        </div>
+
+        <!-- Survival Blankets -->
+        <div class="resource-card" role="article" aria-label="Survival blankets: good stock">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="text-lg" aria-hidden="true">🌡️</span>
+              <span class="text-sm font-bold text-white">Survival Blankets</span>
+            </div>
+            <span class="badge-low text-xs py-0.5 px-2">✓ GOOD</span>
+          </div>
+          <div class="progress-track mb-1" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" aria-label="Survival blankets: 80% remaining">
+            <div class="progress-fill bg-emerald-500" style="width:80%"></div>
+          </div>
+          <div class="flex justify-between text-xs text-slate-400 mb-1">
+            <span>800 blankets</span><span>Target: 1,000</span>
+          </div>
+          <p class="text-xs text-emerald-400">Good supply — monitor cold exposure cases</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =====================================================
+         SECTION 7 — SHELTERS AND FIELD HOSPITALS
+    ===================================================== -->
+    <section id="shelters" class="shelters-section space-y-5" aria-labelledby="shelters-heading">
+
+      <div>
+        <h2 id="shelters-heading" class="section-heading">
+          <span aria-hidden="true">🏥</span> Shelters &amp; Field Hospitals
+        </h2>
+        <p class="text-sm text-slate-400">Occupancy, medical capacity, and utility status. <span class="data-label">Illustrative Data</span></p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Shelters -->
+        <div class="resq-card p-5 space-y-4">
+          <h3 class="text-sm font-bold text-white border-b border-slate-800 pb-2">Evacuation Shelters</h3>
+
+          <div class="shelter-row" role="article" aria-label="Sunrise School shelter, 85% occupied">
+            <div>
+              <p class="text-sm font-bold text-white">Sunrise School — Shelter A</p>
+              <p class="text-xs text-slate-400 mt-0.5">Ward 12, Sector 2 · <span class="coord-label">16.5060°N 80.6350°E</span></p>
+              <div class="mt-2">
+                <div class="flex justify-between text-xs text-slate-400 mb-1"><span>Occupancy</span><span class="font-bold text-amber-400">340 / 400</span></div>
+                <div class="progress-track" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100" aria-label="85% occupied">
+                  <div class="progress-fill bg-amber-500" style="width:85%"></div>
+                </div>
+              </div>
+              <div class="mt-2 flex flex-wrap gap-2 text-xs">
+                <span class="px-2 py-0.5 rounded bg-red-950 text-red-300 border border-red-800">💧 Water: Critical</span>
+                <span class="px-2 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-800">⚡ Generator: 15% fuel</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="shelter-row" role="article" aria-label="St. Thomas Church shelter, 60% occupied">
+            <div>
+              <p class="text-sm font-bold text-white">St. Thomas Church — Shelter B</p>
+              <p class="text-xs text-slate-400 mt-0.5">Sector 2 · <span class="coord-label">16.5040°N 80.6320°E</span></p>
+              <div class="mt-2">
+                <div class="flex justify-between text-xs text-slate-400 mb-1"><span>Occupancy</span><span class="font-bold text-emerald-400">210 / 350</span></div>
+                <div class="progress-track" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="60% occupied">
+                  <div class="progress-fill bg-emerald-500" style="width:60%"></div>
+                </div>
+              </div>
+              <div class="mt-2 flex flex-wrap gap-2 text-xs">
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">💧 Water: Adequate</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">⚡ Generator: Running</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="shelter-row" role="article" aria-label="Community Hall shelter, 45% occupied">
+            <div>
+              <p class="text-sm font-bold text-white">Community Hall — Shelter C</p>
+              <p class="text-xs text-slate-400 mt-0.5">Sector 6 · <span class="coord-label">16.5020°N 80.6500°E</span></p>
+              <div class="mt-2">
+                <div class="flex justify-between text-xs text-slate-400 mb-1"><span>Occupancy</span><span class="font-bold text-emerald-400">135 / 300</span></div>
+                <div class="progress-track" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" aria-label="45% occupied">
+                  <div class="progress-fill bg-blue-500" style="width:45%"></div>
+                </div>
+              </div>
+              <div class="mt-2 flex flex-wrap gap-2 text-xs">
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">💧 Water: Adequate</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">⚡ Grid Power: On</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Field Hospitals -->
+        <div class="resq-card p-5 space-y-4">
+          <h3 class="text-sm font-bold text-white border-b border-slate-800 pb-2">Field Hospitals &amp; Medical Facilities</h3>
+
+          <div class="shelter-row" role="article" aria-label="Field Hospital Alpha, operational">
+            <div class="w-full">
+              <div class="flex items-center justify-between mb-1">
+                <p class="text-sm font-bold text-white">Field Hospital Alpha</p>
+                <span class="badge-team-available text-xs"><span aria-hidden="true">●</span> Operational</span>
+              </div>
+              <p class="text-xs text-slate-400">St. Thomas Church, Sector 2 · <span class="coord-label">16.5040°N 80.6318°E</span></p>
+              <div class="mt-3 grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <div class="flex justify-between text-slate-400 mb-1"><span>Medical Beds</span><span class="text-white font-bold">62 / 85</span></div>
+                  <div class="progress-track" role="progressbar" aria-valuenow="73" aria-valuemin="0" aria-valuemax="100" aria-label="73% of medical beds occupied">
+                    <div class="progress-fill bg-amber-500" style="width:73%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-slate-400 mb-1"><span>ICU Units</span><span class="text-red-400 font-bold">5 / 6</span></div>
+                  <div class="progress-track" role="progressbar" aria-valuenow="83" aria-valuemin="0" aria-valuemax="100" aria-label="83% of ICU units occupied">
+                    <div class="progress-fill bg-red-500" style="width:83%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-2 flex flex-wrap gap-2 text-xs">
+                <span class="px-2 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-800">🚨 ICU: 1 slot only</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">⚡ Generator: Running</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">💧 Water: OK</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="shelter-row" role="article" aria-label="Field Hospital Beta, operational">
+            <div class="w-full">
+              <div class="flex items-center justify-between mb-1">
+                <p class="text-sm font-bold text-white">Field Hospital Beta</p>
+                <span class="badge-team-available text-xs"><span aria-hidden="true">●</span> Operational</span>
+              </div>
+              <p class="text-xs text-slate-400">District Community Centre · <span class="coord-label">16.5080°N 80.6300°E</span></p>
+              <div class="mt-3 grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <div class="flex justify-between text-slate-400 mb-1"><span>Medical Beds</span><span class="text-white font-bold">22 / 40</span></div>
+                  <div class="progress-track" role="progressbar" aria-valuenow="55" aria-valuemin="0" aria-valuemax="100" aria-label="55% of medical beds occupied">
+                    <div class="progress-fill bg-blue-500" style="width:55%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-slate-400 mb-1"><span>ICU Units</span><span class="text-amber-400 font-bold">1 / 2</span></div>
+                  <div class="progress-track" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" aria-label="50% of ICU units occupied">
+                    <div class="progress-fill bg-amber-500" style="width:50%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-2 flex flex-wrap gap-2 text-xs">
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">⚡ Grid Power: On</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">💧 Water: Adequate</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         SECTION 8 — OFFLINE OPERATIONS INFORMATION
+    ===================================================== -->
+    <section id="offline" class="offline-section space-y-5" aria-labelledby="offline-heading">
+
+      <div>
+        <h2 id="offline-heading" class="section-heading">
+          <span aria-hidden="true">⚡</span> Offline Operations &amp; Synchronisation
+        </h2>
+        <p class="text-sm text-slate-400">How ResQNet operates when network connectivity is unavailable. This is a conceptual explanation — this static HTML/CSS page does not perform real database operations.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+        <details class="resq-card">
+          <summary>
+            <span class="text-blue-400 font-bold text-sm">1. Local-First Operations</span>
+          </summary>
+          <div class="details-content">
+            <p>When network connectivity is unavailable, ResQNet continues to operate without interruption. All incident reports, rescue team assignments, resource updates, and shelter occupancy changes are written directly to the browser's local storage layer. Field teams do not experience any operational interruption during network outages.</p>
+          </div>
+        </details>
+
+        <details class="resq-card">
+          <summary>
+            <span class="text-emerald-400 font-bold text-sm">2. IndexedDB Local Persistence</span>
+          </summary>
+          <div class="details-content">
+            <p>ResQNet uses the browser's IndexedDB API as its primary data store. IndexedDB is a structured, transactional, client-side database that persists data across browser sessions. It supports indexed queries, making it suitable for emergency operations data such as incident reports, team rosters, and inventory records — all stored locally without any server dependency.</p>
+          </div>
+        </details>
+
+        <details class="resq-card">
+          <summary>
+            <span class="text-amber-400 font-bold text-sm">3. Sync Queue &amp; Reconnection</span>
+          </summary>
+          <div class="details-content">
+            <p>Every data mutation performed offline is recorded in a Pending Synchronisation Queue stored locally. When network connectivity is restored, ResQNet replays these queued operations to the central coordination server in order, applying conflict-resolution rules. No data is lost during the offline period.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- Illustrative sync queue -->
+      <div class="resq-card p-5">
+        <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+          <span aria-hidden="true">🔄</span>
+          Illustrative Synchronisation Queue
+          <span class="data-label ml-auto">Not real operations</span>
+        </h3>
+        <div class="space-y-2" role="list" aria-label="Illustrative synchronisation queue">
+
+          <div class="sync-entry" data-status="pending" role="listitem">
+            <span class="w-2 h-2 rounded-full bg-amber-400 shrink-0" aria-hidden="true"></span>
+            <span class="font-mono text-xs text-slate-400">INC-2024-0054</span>
+            <span class="text-slate-200">Road waterlogging report submitted offline</span>
+            <span class="badge-sync-pending ml-auto shrink-0">Pending</span>
+          </div>
+
+          <div class="sync-entry" data-status="pending" role="listitem">
+            <span class="w-2 h-2 rounded-full bg-amber-400 shrink-0" aria-hidden="true"></span>
+            <span class="font-mono text-xs text-slate-400">RSC-2024-0021</span>
+            <span class="text-slate-200">Resource update: 60L water delivered to Shelter A</span>
+            <span class="badge-sync-pending ml-auto shrink-0">Pending</span>
+          </div>
+
+          <div class="sync-entry" data-status="queued" role="listitem">
+            <span class="w-2 h-2 rounded-full bg-slate-500 shrink-0" aria-hidden="true"></span>
+            <span class="font-mono text-xs text-slate-400">TMU-2024-0007</span>
+            <span class="text-slate-200">Team NDRF-1 status updated to Deployed</span>
+            <span class="badge-sync-pending ml-auto shrink-0" style="background:rgba(100,116,139,0.1);border-color:rgba(100,116,139,0.3);color:#94A3B8;">Queued</span>
+          </div>
+
+          <div class="sync-entry" role="listitem">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0" aria-hidden="true"></span>
+            <span class="font-mono text-xs text-slate-400">INC-2024-0051</span>
+            <span class="text-slate-200">Medical evacuation request — synced successfully</span>
+            <span class="badge-sync-synced ml-auto shrink-0">Synced</span>
+          </div>
+
+        </div>
+        <p class="text-xs text-slate-500 mt-3 italic">Queue shown above is illustrative. In the actual ResQNet PWA, this queue is managed by the Service Worker and IndexedDB engine.</p>
+      </div>
+    </section>
+
+    <!-- =====================================================
+         SECTION 9 — EMERGENCY FIELD REPORT
+         Print target for Challenge C2
+    ===================================================== -->
+    <section id="report" class="space-y-5" aria-labelledby="report-heading">
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 id="report-heading" class="section-heading">
+            <span aria-hidden="true">📋</span> Emergency Response Field Report
+          </h2>
+          <p class="text-sm text-slate-400">Incident information sheet — press <kbd class="px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800 text-xs font-mono">Ctrl+P</kbd> to print A4 incident report. <span class="data-label">Illustrative</span></p>
+        </div>
+      </div>
+
+      <!-- Screen version of field report -->
+      <div class="resq-card p-6 border-l-4 border-l-red-600 print-hide" role="article" aria-label="Incident report for INC-2024-0047">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <div class="space-y-3">
+            <h3 class="text-base font-bold text-white mb-3 pb-2 border-b border-slate-800">Incident Identification</h3>
+            <dl class="space-y-2 text-sm">
+              <div class="flex gap-3"><dt class="text-slate-400 w-36 shrink-0 font-semibold">Incident ID:</dt><dd class="text-white font-mono font-bold">INC-2024-0047</dd></div>
+              <div class="flex gap-3"><dt class="text-slate-400 w-36 shrink-0 font-semibold">Category:</dt><dd class="text-white">Structural Collapse / Bridge Failure</dd></div>
+              <div class="flex gap-3"><dt class="text-slate-400 w-36 shrink-0 font-semibold">Severity:</dt><dd><span class="badge-critical">★★★ CRITICAL</span></dd></div>
+              <div class="flex gap-3"><dt class="text-slate-400 w-36 shrink-0 font-semibold">Location:</dt><dd class="text-white">River Road, Sector 4, Delta Coastal Basin</dd></div>
+              <div class="flex gap-3"><dt class="text-slate-400 w-36 shrink-0 font-semibold">Coordinates:</dt><dd class="text-white font-mono">16.5125°N, 80.6420°E</dd></div>
+              <div class="flex gap-3"><dt class="text-slate-400 w-36 shrink-0 font-semibold">People Affected:</dt><dd class="text-white font-bold">12 trapped, road closure</dd></div>
+              <div class="flex gap-3"><dt class="text-slate-400 w-36 shrink-0 font-semibold">Date/Time:</dt><dd class="text-slate-300 font-mono">11 Nov 2026 · 14:35 IST <span class="data-label">Illustrative</span></dd></div>
+            </dl>
+          </div>
+
+          <div class="space-y-3">
+            <h3 class="text-base font-bold text-white mb-3 pb-2 border-b border-slate-800">Response Details</h3>
+            <dl class="space-y-2 text-sm">
+              <div class="flex gap-3"><dt class="text-slate-400 w-36 shrink-0 font-semibold">Assigned Team:</dt><dd class="text-white">NDRF Swift Water Rescue (NDRF-1)</dd></div>
+              <div class="flex gap-3"><dt class="text-slate-400 w-36 shrink-0 font-semibold">Incident Cmd:</dt><dd class="text-white">EOC Central HQ, District Command</dd></div>
+              <div class="flex gap-3"><dt class="text-slate-400 w-36 shrink-0 font-semibold">Radio Channel:</dt><dd class="text-white font-mono">VHF CH-16 / NDRF-HQ</dd></div>
+              <div class="flex gap-3"><dt class="text-slate-400 w-36 shrink-0 font-semibold">Resources Req:</dt><dd class="text-white">Inflatable boats, life lines, structural shoring</dd></div>
+              <div class="flex gap-3"><dt class="text-slate-400 w-36 shrink-0 font-semibold">Sync Status:</dt><dd><span class="badge-sync-pending">🔄 Pending Sync</span></dd></div>
+            </dl>
+          </div>
+        </div>
+
+        <div class="mt-5 pt-4 border-t border-slate-800">
+          <h3 class="text-sm font-bold text-white mb-3">Response Instructions</h3>
+          <ol class="response-instructions space-y-1 text-sm text-slate-300" aria-label="Emergency response instructions">
+            <li>Deploy NDRF-1 swift water team via waterway approach (road approach severed)</li>
+            <li>Establish communication with trapped persons — confirm headcount and medical status</li>
+            <li>Prioritise extraction of elderly, children, and medical-critical individuals first</li>
+            <li>Request helicopter evacuation via AVN-HEL for non-ambulatory patients</li>
+            <li>Place structural cordon 50 metres from collapsed bridge — no unauthorised entry</li>
+            <li>Update ResQNet incident log every 30 minutes with extraction progress</li>
+          </ol>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =====================================================
+         VIDEO SECTION — Part B: HTML5 video with captions
+    ===================================================== -->
+    <section id="video-section" class="video-section space-y-4" aria-labelledby="video-heading">
+
+      <div>
+        <h2 id="video-heading" class="section-heading">
+          <span aria-hidden="true">🎥</span> Emergency Response Training Video
+        </h2>
+        <p class="text-sm text-slate-400">Flood rescue operations overview — captions available. <span class="data-label">Local media file</span></p>
+      </div>
+
+      <div class="resq-card p-4">
+        <!-- Video status badge / info -->
+        <div class="bg-blue-950/40 border border-blue-700/40 rounded-lg p-3 mb-4 text-xs text-blue-200 flex items-center justify-between gap-3 flex-wrap" role="note">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <strong class="text-blue-300">Emergency Operations Video Loaded:</strong>
+            <span>Field response recording with synchronized WebVTT captions enabled (<code class="font-mono bg-slate-900 px-1 py-0.5 rounded text-blue-300">media/emergency-response.mp4</code>).</span>
+          </div>
+          <span class="text-xs text-slate-400 font-mono">Duration: 90s · WebVTT Active</span>
+        </div>
+
+        <!-- HTML5 video element with WebVTT captions -->
+        <div class="video-container">
+          <video
+            controls
+            preload="metadata"
+            width="800"
+            height="450"
+            aria-label="Emergency response flood rescue operations video with English captions"
+            class="w-full">
+            <source src="media/emergency-response.mp4" type="video/mp4">
+            <track
+              kind="captions"
+              src="media/emergency-captions.vtt"
+              srclang="en"
+              label="English Captions"
+              default>
+            <p class="p-4 text-slate-400 text-sm">
+              Your browser does not support HTML5 video. The video file covers NDRF swift water rescue operations during flood emergency response.
+            </p>
+          </video>
+        </div>
+
+        <p class="text-xs text-slate-500 mt-2">
+          Captions authored specifically for this video. Includes location references, team callouts, and resource status narration.
+          Styled using the CSS <code class="font-mono bg-slate-900 px-1 rounded">::cue</code> pseudo-element.
+        </p>
+      </div>
+
+    </section>
+
+    <!-- =====================================================
+         FIELD REPORT SEARCH (demonstrates :valid/:invalid)
+    ===================================================== -->
+    <section class="space-y-3 print-hide" aria-labelledby="search-heading">
+      <h2 id="search-heading" class="section-heading text-base">
+        <span aria-hidden="true">🔍</span> Incident Record Search
+      </h2>
+      <div class="resq-card p-4 max-w-xl">
+        <label for="incident-search" class="form-label">Search by Incident ID (format: INC-YYYY-NNNN)</label>
+        <div class="relative">
+          <input
+            type="text"
+            id="incident-search"
+            name="incident-search"
+            class="form-input emergency-search search-validated incident-search-box"
+            placeholder="e.g. INC-2024-0047"
+            pattern="INC-\d{4}-\d{4}"
+            aria-describedby="search-hint-valid search-hint-invalid search-hint-default"
+            autocomplete="off">
+          <span id="search-hint-default" class="block text-xs text-slate-500 mt-1">Enter a valid incident ID to look up field data.</span>
+          <span id="search-hint-valid"   class="hidden text-xs text-emerald-400 mt-1" aria-live="polite">✓ Valid incident ID format — looking up record</span>
+          <span id="search-hint-invalid" class="hidden text-xs text-red-400 mt-1" aria-live="polite">✗ Format must be INC-YYYY-NNNN (e.g. INC-2024-0047)</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-2 italic">This field demonstrates CSS :valid/:invalid pseudo-class validation. No data submission occurs.</p>
+      </div>
+    </section>
+
+  </main><!-- /#main-content -->
+
+  <!-- =====================================================
+       PRINT REPORT SECTION — Hidden on screen, shown on print
+       Challenge C2: Professional A4 field incident report
+  ===================================================== -->
+  <div class="print-report-section" aria-hidden="true">
+    <div class="print-report-sheet">
+
+      <!-- Print header -->
+      <div class="print-report-header">
+        <div>
+          <div class="print-org-name">ResQNet</div>
+          <div class="print-report-title">Emergency Incident Field Report</div>
+          <div class="print-report-meta">
+            Reference: ISO 22320 Emergency Management — Field Documentation Practice<br>
+            <strong>⚠ ACADEMIC PROJECT — ILLUSTRATIVE DEMONSTRATION DATA ONLY</strong>
+          </div>
+        </div>
+        <div class="text-right print-report-meta">
+          <div style="font-size:11pt;font-weight:700;">DEFCON LEVEL 3</div>
+          <div>Delta Coastal Basin — Active Response</div>
+          <div>Report Date: 11 November 2026 <em>(Illustrative)</em></div>
+          <div>Print Time: [System Clock — Illustration]</div>
+        </div>
+      </div>
+
+      <!-- Section A: Incident identification -->
+      <div class="print-section-heading">A — Incident Identification</div>
+      <table class="print-field-table">
+        <tbody>
+          <tr class="severity-critical">
+            <th scope="row">Incident ID</th>
+            <td><strong>INC-2024-0047</strong></td>
+          </tr>
+          <tr><th scope="row">Incident Category</th><td>Structural Collapse / Bridge Failure</td></tr>
+          <tr class="severity-critical">
+            <th scope="row">Severity Level</th>
+            <td><strong>★★★ CRITICAL — Life-Threatening (Immediate Response Required)</strong></td>
+          </tr>
+          <tr><th scope="row">Location</th><td>River Road, Sector 4, Delta Coastal Basin</td></tr>
+          <tr><th scope="row">GPS Coordinates</th><td>16.5125°N, 80.6420°E (Zone 44N — Illustrative)</td></tr>
+          <tr><th scope="row">Date and Time Logged</th><td>11 November 2026, 14:35 IST <em>(Illustrative demonstration data)</em></td></tr>
+          <tr><th scope="row">People Affected</th><td>12 persons confirmed trapped; road closure affecting all vehicular access to Sector 4</td></tr>
+        </tbody>
+      </table>
+
+      <!-- Section B: Response assignment -->
+      <div class="print-section-heading">B — Response Assignment</div>
+      <table class="print-field-table">
+        <tbody>
+          <tr><th scope="row">Assigned Rescue Team</th><td>NDRF Swift Water Rescue — Unit NDRF-1 (12 personnel)</td></tr>
+          <tr><th scope="row">Incident Commander</th><td>EOC Central HQ, District Emergency Operations Centre</td></tr>
+          <tr><th scope="row">Radio Channel</th><td>VHF Channel 16 / NDRF-HQ Coordination Net</td></tr>
+          <tr><th scope="row">Required Resources</th><td>Inflatable rescue boats (×4), life lines, structural shoring team, helicopter evacuation on standby</td></tr>
+          <tr><th scope="row">Synchronisation Status</th><td>Pending — to be uploaded when connectivity restored</td></tr>
+        </tbody>
+      </table>
+
+      <!-- Section C: Response instructions -->
+      <div class="print-section-heading">C — Emergency Response Instructions</div>
+      <div class="print-instructions">
+        <ol>
+          <li>Deploy NDRF-1 swift water rescue team via waterway approach — road access severed at collapsed bridge</li>
+          <li>Establish contact with trapped persons; confirm headcount, medical status, and location of each individual</li>
+          <li>Prioritise extraction sequence: medical-critical, elderly, children, then remaining civilians</li>
+          <li>Request helicopter evacuation (AVN-HEL) immediately for non-ambulatory patients or cardiac/obstetric cases</li>
+          <li>Establish structural safety cordon 50 metres from collapsed bridge — no unauthorised personnel beyond cordon</li>
+          <li>Update ResQNet incident log every 30 minutes with extraction progress, status changes, and resource consumption</li>
+          <li>Notify Field Hospital Alpha (St. Thomas Church, Sector 2) to prepare 12 receiving beds</li>
+        </ol>
+      </div>
+
+      <!-- Section D: Supporting information -->
+      <div class="print-section-heading">D — Supporting Information &amp; References</div>
+      <table class="print-field-table">
+        <tbody>
+          <tr><th scope="row">Disaster Type</th><td>Cyclone Vardha + Flash Flood (Krishna Basin inundation)</td></tr>
+          <tr><th scope="row">Emergency Zone</th><td>District Emergency Zone 7 — Severe</td></tr>
+          <tr><th scope="row">Nearest Field Hospital</th><td>Field Hospital Alpha — St. Thomas Church, Sector 2 (16.5040°N, 80.6318°E)</td></tr>
+          <tr><th scope="row">Nearest Shelter</th><td>Shelter B — St. Thomas Church, Sector 2 — 210/350 capacity (60% occupied)</td></tr>
+          <tr><th scope="row">Standards Reference</th><td><a href="https://www.iso.org/standard/69594.html">ISO 22320:2018 Emergency Management Standard</a></td></tr>
+          <tr><th scope="row">Lead Response Agency</th><td><a href="https://ndrf.gov.in">National Disaster Response Force (NDRF)</a></td></tr>
+          <tr><th scope="row">ResQNet Architecture</th><td><a href="https://github.com/resqnet/coordination">ResQNet Offline-First System Documentation</a></td></tr>
+        </tbody>
+      </table>
+
+      <!-- Signature block -->
+      <div class="print-signature-block">
+        <div>
+          <div class="print-signature-line">Field Responder Signature</div>
+          <div style="font-size:8pt;text-align:center;margin-top:2mm;">Name / Call-Sign</div>
+        </div>
+        <div>
+          <div class="print-signature-line">Incident Commander Signature</div>
+          <div style="font-size:8pt;text-align:center;margin-top:2mm;">EOC Central HQ</div>
+        </div>
+        <div>
+          <div class="print-signature-line">Date / Time Verified</div>
+          <div style="font-size:8pt;text-align:center;margin-top:2mm;">DD / MM / YYYY — HH:MM IST</div>
+        </div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="print-disclaimer">
+        <strong>DISCLAIMER:</strong> This document is part of an academic project (CSC413-8 Lab Exercise 2) submitted for educational assessment. All incident data, coordinates, personnel, unit names, casualty figures, and resource quantities shown are <strong>illustrative demonstration data only</strong> and do not represent real emergency conditions. ResQNet references ISO 22320 (Societal Security — Emergency Management) for field documentation structure without claiming certified compliance. This report must not be used for actual emergency response operations.
+      </div>
+
+    </div>
+  </div><!-- /.print-report-section -->
+
+  <!-- =====================================================
+       SECTION 10 — FOOTER
+  ===================================================== -->
+  <footer class="site-footer bg-slate-900 border-t border-slate-800 mt-auto print-hide" role="contentinfo">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Brand -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <img src="media/icon.svg" alt="ResQNet shield logo" width="28" height="28" class="w-7 h-7">
+            <span class="text-lg font-black text-white font-mono">ResQ<span class="text-blue-500">Net</span></span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Offline-First Disaster Relief Coordination System.<br>
+            Connecting Help. Saving Lives.
+          </p>
+          <p class="text-xs text-slate-500 mt-2">Domain: Human-Centered Disaster Informatics &amp; Emergency Response Coordination</p>
+        </div>
+
+        <!-- Academic disclaimer -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Academic Disclaimer</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            This page is submitted as part of <strong class="text-slate-400">CSC413-8 Lab Exercise 2</strong>. All emergency data, incident details, team names, coordinates, and resource figures are <strong class="text-slate-400">illustrative demonstration data</strong> and do not represent real emergencies or real people.
+          </p>
+        </div>
+
+        <!-- Standards reference -->
+        <div>
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Standards Reference</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Field documentation structure references <strong class="text-slate-400">ISO 22320:2018</strong> (Societal Security — Emergency Management — Requirements for Incident Management). ResQNet does not claim certified compliance with this standard. This reference is for academic contextualisation only.
+          </p>
+          <p class="text-xs text-slate-600 mt-2">
+            Tailwind CSS v3.4.17 (MIT) · Leaflet icons BSD 2-Clause
+          </p>
+        </div>
+
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
+        <span>ResQNet — CSC413-8 Lab Exercise 2 · Academic Project Only</span>
+        <span>No JavaScript · Tailwind CSS 3 (Local) · HTML5 · CSS3</span>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
+

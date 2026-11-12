@@ -1,0 +1,1499 @@
+/* ============================================================
+   ResQNet Lab 2 — Tailwind CSS 3 Source
+   CSC413-8 Lab Exercise 2
+   Emergency-first, No-JS, Offline-capable static page
+   ============================================================ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   BASE LAYER — Custom base styles for ResQNet emergency UI
+   ============================================================ */
+@layer base {
+  :root {
+    --resq-dark: #0B1120;
+    --resq-card: #131D31;
+    --resq-border: #1E293B;
+    --resq-red: #DC2626;
+    --resq-orange: #F97316;
+    --resq-amber: #F59E0B;
+    --resq-emerald: #10B981;
+    --resq-blue: #2563EB;
+    --resq-cyan: #06B6D4;
+  }
+
+  body {
+    background-color: #0B1120;
+    color: #F8FAFC;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0B1120; }
+  ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+  /* Landmark focus outline — never removed */
+  *:focus-visible {
+    outline: 3px solid #3B82F6;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+/* ============================================================
+   COMPONENTS LAYER — Reused ResQNet component classes
+   ============================================================ */
+@layer components {
+
+  /* --- Navigation --- */
+  .nav-link {
+    @apply flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-300;
+  }
+  .nav-link:hover {
+    @apply bg-slate-800 text-white;
+  }
+  .nav-link:focus-visible {
+    @apply outline-none ring-2 ring-blue-500 ring-offset-1 ring-offset-slate-900;
+  }
+
+  /* --- Cards --- */
+  .resq-card {
+    @apply bg-slate-900 border border-slate-800 rounded-xl shadow-lg transition-all duration-200;
+  }
+  .resq-card-hover:hover {
+    @apply border-slate-700 shadow-xl;
+  }
+
+  /* --- Priority Badges --- */
+  .badge-critical {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-950 text-red-300 border border-red-500/40;
+  }
+  .badge-high {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-950 text-orange-300 border border-orange-500/40;
+  }
+  .badge-medium {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-950 text-amber-300 border border-amber-500/40;
+  }
+  .badge-low {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40;
+  }
+
+  /* --- Sync Status Badges --- */
+  .badge-sync-pending {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/30;
+  }
+  .badge-sync-synced {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/30;
+  }
+
+  /* --- Team Status Badges --- */
+  .badge-team-deployed {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/15 text-blue-300 border border-blue-500/30;
+  }
+  .badge-team-available {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30;
+  }
+  .badge-team-standby {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-slate-700/60 text-slate-400 border border-slate-600/40;
+  }
+
+  /* --- Buttons --- */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white transition-colors;
+  }
+  .btn-primary:hover { @apply bg-blue-500; }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-red-600 text-white transition-colors;
+  }
+  .btn-danger:hover { @apply bg-red-500; }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-slate-800 text-slate-200 border border-slate-700 transition-colors;
+  }
+  .btn-secondary:hover { @apply bg-slate-700; }
+
+  /* --- Form elements --- */
+  .form-input {
+    @apply w-full bg-slate-950/70 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 transition-colors;
+  }
+  .form-input:focus {
+    @apply outline-none ring-2 ring-blue-500/50 border-blue-500;
+  }
+  .form-label {
+    @apply block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5;
+  }
+
+  /* --- Section heading --- */
+  .section-heading {
+    @apply text-xl font-black text-white tracking-tight flex items-center gap-2 mb-1;
+  }
+
+  /* --- Progress bar track --- */
+  .progress-track {
+    @apply w-full bg-slate-800 rounded-full h-2 overflow-hidden;
+  }
+  .progress-fill {
+    @apply h-2 rounded-full transition-all duration-300;
+  }
+
+  /* --- Offline grid pattern (tactical background) --- */
+  .offline-grid-pattern {
+    background-size: 40px 40px;
+    background-image:
+      linear-gradient(to right, rgba(51, 65, 85, 0.25) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(51, 65, 85, 0.25) 1px, transparent 1px);
+  }
+
+  /* --- Skip link (accessibility) --- */
+  .skip-link {
+    @apply absolute -top-full left-4 z-50 bg-blue-600 text-white px-4 py-2 rounded-b-lg text-sm font-semibold;
+  }
+  .skip-link:focus { @apply top-0; }
+}
+
+/* ============================================================
+   PART B — PSEUDO-ELEMENTS
+   ============================================================ */
+
+/* :: 1 — ::before — Priority indicator diamond on incident cards */
+.incident-card::before {
+  content: "◆";
+  position: absolute;
+  left: -1px;
+  top: 1rem;
+  font-size: 0.6rem;
+  line-height: 1;
+  transform: translateX(-50%);
+}
+.incident-card.inc-critical::before { color: #DC2626; }
+.incident-card.inc-high::before     { color: #F97316; }
+.incident-card.inc-medium::before   { color: #F59E0B; }
+.incident-card.inc-low::before      { color: #10B981; }
+
+/* :: 2 — ::after — Sync status label after pending queue items */
+.sync-entry[data-status="pending"]::after {
+  content: " — Awaiting sync";
+  font-size: 0.65rem;
+  color: #F59E0B;
+  font-style: italic;
+  margin-left: 0.5rem;
+}
+.sync-entry[data-status="queued"]::after {
+  content: " — In queue";
+  font-size: 0.65rem;
+  color: #94A3B8;
+  font-style: italic;
+  margin-left: 0.5rem;
+}
+
+/* :: 3 — ::marker — Style ordered list markers in response instructions */
+.response-instructions li {
+  padding-left: 0.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+.response-instructions li::marker {
+  color: #DC2626;
+  font-weight: 700;
+  font-size: 0.9em;
+  content: counter(list-item) ". ";
+}
+.response-instructions {
+  list-style: decimal;
+  counter-reset: list-item;
+}
+
+/* :: 4 — ::placeholder — Form field accessibility hints */
+.emergency-search::placeholder {
+  color: #64748B;
+  font-style: italic;
+  font-size: 0.8125rem;
+}
+.incident-search-box::placeholder {
+  content: "";
+  color: #94A3B8;
+}
+
+/* :: 5 — ::cue — Video caption styling */
+::cue {
+  background-color: rgba(0, 0, 0, 0.82);
+  color: #F8FAFC;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.95em;
+  line-height: 1.5;
+  padding: 0.2em 0.5em;
+  border-radius: 3px;
+}
+::cue(.emergency-cue) {
+  color: #FCA5A5;
+  font-weight: 700;
+}
+::cue(.location-cue) {
+  color: #93C5FD;
+  font-style: italic;
+}
+::cue(.action-cue) {
+  color: #6EE7B7;
+  font-weight: 600;
+}
+
+/* ============================================================
+   PART B — PSEUDO-CLASSES
+   ============================================================ */
+
+/* :: 1 — :hover — Navigation and card interaction */
+.incident-card:hover {
+  border-color: rgba(148, 163, 184, 0.4);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+.team-card:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+  transition: all 0.15s ease;
+}
+.resource-card:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  transition: border-color 0.15s;
+}
+
+/* :: 2 — :focus-visible — Keyboard navigation (defined in base, reinforced here) */
+.filter-label:focus-visible,
+details > summary:focus-visible,
+.nav-link:focus-visible,
+a:focus-visible {
+  outline: 3px solid #3B82F6;
+  outline-offset: 3px;
+}
+
+/* :: 3 — :checked — Incident severity filter */
+/* Show selected filter label as active */
+#inc-filter-critical:checked ~ .filter-bar label[for="inc-filter-critical"],
+#inc-filter-high:checked ~ .filter-bar label[for="inc-filter-high"],
+#inc-filter-medium:checked ~ .filter-bar label[for="inc-filter-medium"],
+#inc-filter-low:checked ~ .filter-bar label[for="inc-filter-low"],
+#inc-filter-all:checked ~ .filter-bar label[for="inc-filter-all"] {
+  background-color: rgba(37, 99, 235, 0.3);
+  border-color: #3B82F6;
+  color: #BFDBFE;
+  font-weight: 700;
+}
+
+/* Filter logic: hide non-matching cards */
+#inc-filter-critical:checked ~ .incident-list .incident-card:not(.inc-critical) { display: none; }
+#inc-filter-high:checked ~ .incident-list .incident-card:not(.inc-high) { display: none; }
+#inc-filter-medium:checked ~ .incident-list .incident-card:not(.inc-medium) { display: none; }
+#inc-filter-low:checked ~ .incident-list .incident-card:not(.inc-low) { display: none; }
+
+/* Team filter */
+#team-filter-deployed:checked ~ .team-grid .team-card:not(.team-deployed) { display: none; }
+#team-filter-available:checked ~ .team-grid .team-card:not(.team-available) { display: none; }
+#team-filter-standby:checked ~ .team-grid .team-card:not(.team-standby) { display: none; }
+
+/* Show selected team filter label */
+#team-filter-deployed:checked ~ .team-filter-bar label[for="team-filter-deployed"],
+#team-filter-available:checked ~ .team-filter-bar label[for="team-filter-available"],
+#team-filter-standby:checked ~ .team-filter-bar label[for="team-filter-standby"],
+#team-filter-all:checked ~ .team-filter-bar label[for="team-filter-all"] {
+  background-color: rgba(37, 99, 235, 0.3);
+  border-color: #3B82F6;
+  color: #BFDBFE;
+  font-weight: 700;
+}
+
+/* :: 4 — :nth-child() — Alternate incident card styling */
+.incident-list .incident-card:nth-child(even) {
+  background-color: rgba(15, 23, 42, 0.6);
+}
+.incident-list .incident-card:nth-child(odd) {
+  background-color: rgba(19, 29, 49, 0.5);
+}
+
+/* :: 5 — :empty — Show message when incident category list is empty */
+.empty-state-demo:empty::before {
+  content: "⚠ No incidents currently logged in this severity category. All reported incidents are displayed above.";
+  display: block;
+  padding: 1.5rem;
+  text-align: center;
+  color: #64748B;
+  font-style: italic;
+  font-size: 0.875rem;
+  border: 1px dashed #334155;
+  border-radius: 0.5rem;
+  background: rgba(15, 23, 42, 0.4);
+}
+
+/* :: 6 — :target — Section highlighted when navigated via anchor */
+section:target {
+  outline: 2px solid rgba(59, 130, 246, 0.4);
+  outline-offset: 6px;
+  border-radius: 1rem;
+  animation: target-flash 1.5s ease-out forwards;
+}
+@keyframes target-flash {
+  0%   { outline-color: rgba(59, 130, 246, 0.8); }
+  100% { outline-color: rgba(59, 130, 246, 0.2); }
+}
+section:target .section-heading::before {
+  content: "→ ";
+  color: #3B82F6;
+  font-weight: 400;
+}
+
+/* :: 7 — :has() — Change incident card styling when it contains a critical badge */
+.incident-card:has(.badge-critical) {
+  border-left: 4px solid #DC2626 !important;
+  background-color: rgba(69, 10, 10, 0.25) !important;
+}
+/* When the incident section contains any critical incident, emphasise heading */
+.incident-section:has(.inc-critical:not([style*="display: none"])) > .section-intro {
+  border-left: 3px solid #DC2626;
+  padding-left: 0.75rem;
+}
+
+/* :: 8 — :not() — Distinguish non-critical incidents */
+.incident-card:not(.inc-critical) .card-severity-label {
+  opacity: 0.85;
+}
+.incident-card:not(.inc-critical):not(.inc-high) {
+  border-color: rgba(30, 41, 59, 0.6);
+}
+
+/* :: 9 — :valid / :invalid — CSS-only form validation feedback */
+.search-validated:valid {
+  border-color: rgba(16, 185, 129, 0.5);
+}
+.search-validated:invalid:not(:placeholder-shown) {
+  border-color: rgba(239, 68, 68, 0.5);
+  background-color: rgba(69, 10, 10, 0.2);
+}
+.search-validated:valid ~ .search-hint-valid   { display: block; }
+.search-validated:invalid:not(:placeholder-shown) ~ .search-hint-invalid  { display: block; }
+
+/* ============================================================
+   PART B — MEDIA QUERIES (7 distinct queries, 4+ groups)
+   ============================================================ */
+
+/* ---- MQ 1: Screen width — Range syntax (compulsory) ----
+   Group: Screen
+   Mobile-first emergency view for field responders on 320–480px phones */
+@media (width < 40rem) {
+  /* Compact the header */
+  .site-header-inner { flex-wrap: wrap; gap: 0.5rem; }
+  .defcon-status-bar { font-size: 0.65rem; padding: 0.25rem 0.5rem; }
+  .nav-scroll-row { overflow-x: auto; white-space: nowrap; gap: 0.25rem; }
+  /* Critical incidents shown first (visual order) */
+  .incident-list { display: flex; flex-direction: column; }
+  .inc-critical { order: -3; }
+  .inc-high { order: -2; }
+  .inc-medium { order: -1; }
+  /* Wider touch targets */
+  .filter-label { min-height: 2.5rem; padding: 0.5rem 0.75rem; }
+  /* Replace desktop picture with mobile image (via picture element) */
+  /* Handled by <source media="..."> inside <picture> in HTML */
+  /* Simplify stat cards to full-width */
+  .stat-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .stat-card { padding: 0.75rem; }
+  /* Simplified resource grid */
+  .resource-grid { grid-template-columns: 1fr; }
+  /* GIS map height reduction */
+  .gis-map-container { height: 220px; }
+  /* Print report compact */
+  .print-report-sheet { padding: 1rem; }
+}
+
+/* ---- MQ 2: Screen width tablet and up — Range syntax ----
+   Group: Screen
+   Two-column layout for tablet responders */
+@media (40rem <= width < 64rem) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .team-grid { grid-template-columns: repeat(2, 1fr); }
+  .resource-grid { grid-template-columns: repeat(2, 1fr); }
+  .gis-map-container { height: 380px; }
+}
+
+/* ---- MQ 3: Screen orientation — Landscape on mobile/tablet ----
+   Group: Screen (orientation)
+   Adapt incident and GIS layout for landscape on small devices */
+@media (orientation: landscape) and (max-height: 500px) {
+  .site-header { position: static; } /* free scroll room */
+  .hero-section { padding: 1rem; }
+  .hero-section h1 { font-size: 1.5rem; }
+  .hero-section p { display: none; } /* hide long text, save vertical space */
+  .gis-map-container { height: 260px; }
+  .video-container { max-height: 220px; }
+}
+
+/* ---- MQ 4: Input capability — Coarse pointer (touch) ----
+   Group: Input
+   Enlarge touch targets for field responders on tablets/phones */
+@media (pointer: coarse) {
+  .filter-label { min-height: 2.75rem; min-width: 5rem; padding: 0.6rem 1rem; }
+  .nav-link { min-height: 2.75rem; }
+  details > summary { min-height: 2.75rem; padding: 0.75rem 1rem; }
+  .team-card { padding: 1.25rem; }
+  .resource-card { padding: 1rem; }
+  /* Larger checkboxes/radios */
+  input[type="radio"], input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+/* ---- MQ 5: Dark mode (compulsory checklist item) ----
+   Group: User setting
+   Tactical dark mode for nighttime emergency field operations */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #060A13; /* ResQNet ultra-dark tactical background */
+    color: #F8FAFC;
+  }
+  .site-header {
+    background-color: rgba(6, 10, 19, 0.95);
+    border-bottom: 1px solid #1E293B;
+  }
+  .resq-card {
+    background-color: #0B1120;
+    border-color: #1E293B;
+  }
+  .defcon-status-bar {
+    background-color: rgba(6, 10, 19, 0.9);
+  }
+}
+
+/* ---- MQ 6: Reduced motion (compulsory) — Challenge C3 ----
+   Group: User setting
+   Remove pulsing, animation; retain severity meaning via text/borders/symbols */
+@media (prefers-reduced-motion: reduce) {
+  /* Remove ALL animations and transitions */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Replace pulsing badge with static border emphasis */
+  .badge-critical {
+    animation: none !important;
+    border-width: 2px;
+    border-color: #EF4444;
+    box-shadow: none;
+  }
+  /* Replace pulsing dot with solid indicator */
+  .pulse-dot {
+    animation: none !important;
+    box-shadow: 0 0 0 2px currentColor;
+  }
+  /* Static defcon alert — no flashing */
+  .defcon-alert-pulse {
+    animation: none !important;
+    border: 2px solid #EF4444;
+  }
+  /* Static online/offline indicator */
+  .connectivity-indicator {
+    animation: none !important;
+  }
+  /* Static target flash */
+  section:target {
+    animation: none !important;
+    outline: 2px solid rgba(59, 130, 246, 0.6);
+  }
+  /* Preserve warning meaning: add [CRITICAL] text label */
+  .severity-critical-motion-label::before {
+    content: "[CRITICAL] ";
+    font-weight: 700;
+    color: #FCA5A5;
+  }
+}
+
+/* ---- MQ 6: High contrast — Challenge C3 ----
+   Group: User setting
+   Strengthen borders, text contrast, focus rings, severity distinctions */
+@media (prefers-contrast: more) {
+  body {
+    background-color: #000000;
+    color: #FFFFFF;
+  }
+  .resq-card {
+    border: 2px solid #FFFFFF;
+    background-color: #0A0A0A;
+  }
+  .incident-card {
+    border: 2px solid #CBD5E1;
+  }
+  .incident-card.inc-critical {
+    border: 3px solid #FF4444 !important;
+    background-color: rgba(100, 0, 0, 0.5) !important;
+  }
+  .incident-card.inc-high {
+    border: 3px solid #FF8800 !important;
+    background-color: rgba(80, 30, 0, 0.5) !important;
+  }
+  .badge-critical {
+    background-color: #7F0000;
+    color: #FFFFFF;
+    border: 2px solid #FF0000;
+    font-weight: 900;
+  }
+  .badge-high {
+    background-color: #7F3800;
+    color: #FFFFFF;
+    border: 2px solid #FF8800;
+    font-weight: 900;
+  }
+  /* High-contrast connectivity and sync states (understandable without colour) */
+  .online-badge {
+    background-color: #004400;
+    border: 2px solid #00FF00;
+    color: #FFFFFF;
+  }
+  .online-badge::before {
+    content: "[ONLINE] ";
+    font-weight: 900;
+  }
+  .offline-badge {
+    background-color: #440000;
+    border: 2px solid #FF0000;
+    color: #FFFFFF;
+  }
+  .offline-badge::before {
+    content: "[OFFLINE] ";
+    font-weight: 900;
+  }
+  .badge-sync-pending {
+    border: 2px solid #FFFF00 !important;
+    background-color: #333300 !important;
+    color: #FFFFFF !important;
+  }
+  .badge-sync-pending::before {
+    content: "[PENDING SYNC] ";
+    font-weight: 900;
+  }
+  .badge-sync-synced {
+    border: 2px solid #00FF00 !important;
+    background-color: #003300 !important;
+    color: #FFFFFF !important;
+  }
+  .badge-sync-synced::before {
+    content: "[SYNCED] ";
+    font-weight: 900;
+  }
+  /* Stronger focus indicator */
+  *:focus-visible {
+    outline: 4px solid #FFFF00 !important;
+    outline-offset: 4px !important;
+  }
+  /* Ensure severity is not colour-alone */
+  .inc-critical .severity-symbol::after { content: " ★★★ CRITICAL"; }
+  .inc-high .severity-symbol::after     { content: " ★★ HIGH"; }
+  .inc-medium .severity-symbol::after   { content: " ★ MEDIUM"; }
+  .inc-low .severity-symbol::after      { content: " LOW"; }
+  /* Stronger progress bar contrast */
+  .progress-track {
+    background-color: #333333;
+    border: 1px solid #666666;
+  }
+  /* Nav links */
+  .nav-link {
+    border: 1px solid #555555;
+  }
+  .nav-link:hover {
+    border-color: #FFFFFF;
+    background-color: #1A1A1A;
+  }
+  /* Section headings */
+  .section-heading { color: #FFFFFF; text-shadow: none; }
+}
+
+/* ---- MQ 7: Print — Challenge C2 (compulsory) ----
+   Group: Output
+   Professional A4 field incident report */
+@media print {
+  /* A4 page setup */
+  @page {
+    size: A4 portrait;
+    margin: 15mm 20mm 20mm 20mm;
+  }
+
+  /* Base print reset */
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Show only the print report */
+  body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; }
+
+  /* Hide everything except the print report */
+  .site-header,
+  .skip-link,
+  .hero-section,
+  .overview-section,
+  .incident-section,
+  .teams-section,
+  .gis-section,
+  .resources-section,
+  .shelters-section,
+  .offline-section,
+  .video-section,
+  .site-footer,
+  .filter-bar,
+  .team-filter-bar,
+  .defcon-alert-banner,
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Show only the print report section */
+  .print-report-section {
+    display: block !important;
+  }
+
+  /* Print report layout */
+  .print-report-sheet {
+    width: 100%;
+    padding: 0;
+    font-size: 10pt;
+    line-height: 1.5;
+  }
+
+  /* Report header */
+  .print-report-header {
+    border-bottom: 3px solid black;
+    padding-bottom: 8mm;
+    margin-bottom: 6mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .print-org-name {
+    font-size: 18pt;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+  }
+  .print-report-title {
+    font-size: 13pt;
+    font-weight: 700;
+    margin-top: 2mm;
+  }
+  .print-report-meta {
+    font-size: 8pt;
+    color: #333 !important;
+  }
+
+  /* Field data table */
+  .print-field-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 6mm;
+    font-size: 9.5pt;
+  }
+  .print-field-table th {
+    background-color: #E5E7EB !important;
+    color: black !important;
+    padding: 4px 8px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid #9CA3AF;
+    width: 32%;
+  }
+  .print-field-table td {
+    padding: 5px 8px;
+    border: 1px solid #9CA3AF;
+    vertical-align: top;
+  }
+  .print-field-table tr.severity-critical th,
+  .print-field-table tr.severity-critical td {
+    background-color: #FEE2E2 !important;
+  }
+
+  /* Section headings in print */
+  .print-section-heading {
+    font-size: 11pt;
+    font-weight: 700;
+    border-bottom: 1.5px solid black;
+    padding-bottom: 2mm;
+    margin: 5mm 0 3mm 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Response instructions in print */
+  .print-instructions ol {
+    padding-left: 1.5rem;
+    margin: 2mm 0;
+  }
+  .print-instructions li {
+    margin-bottom: 2mm;
+    font-size: 9.5pt;
+    line-height: 1.5;
+  }
+
+  /* Print link URLs using ::after */
+  a[href]::after {
+    content: " [" attr(href) "]";
+    font-size: 8pt;
+    color: #374151 !important;
+    word-break: break-all;
+  }
+  a[href^="#"]::after { content: none; } /* skip anchor links */
+
+  /* Print disclaimer */
+  .print-disclaimer {
+    margin-top: 6mm;
+    padding-top: 4mm;
+    border-top: 1px solid #9CA3AF;
+    font-size: 7.5pt;
+    color: #4B5563 !important;
+    font-style: italic;
+  }
+
+  /* Avoid page breaks inside important elements */
+  .print-field-table, .print-instructions { page-break-inside: avoid; }
+
+  /* Signature block */
+  .print-signature-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10mm;
+    margin-top: 10mm;
+    padding-top: 6mm;
+    border-top: 1px solid black;
+  }
+  .print-signature-line {
+    border-top: 1px solid black;
+    margin-top: 15mm;
+    font-size: 8pt;
+    text-align: center;
+  }
+}
+
+/* ============================================================
+   ADDITIONAL UTILITY CLASSES
+   ============================================================ */
+
+/* SR-only but accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Filter label (interactive CSS-only control) */
+.filter-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  background-color: rgba(15, 23, 42, 0.6);
+  color: #94A3B8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.filter-label:hover {
+  background-color: rgba(30, 41, 59, 0.8);
+  color: #CBD5E1;
+  border-color: rgba(100, 116, 139, 0.6);
+}
+
+/* Incident card base */
+.incident-card {
+  position: relative;
+  padding: 1rem 1rem 1rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(30, 41, 59, 0.8);
+  transition: all 0.2s ease;
+}
+
+/* Team card base */
+.team-card {
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(30, 41, 59, 0.8);
+  background-color: rgba(15, 23, 42, 0.6);
+  transition: all 0.2s ease;
+}
+
+/* Resource card */
+.resource-card {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(30, 41, 59, 0.6);
+  background-color: rgba(15, 23, 42, 0.5);
+  transition: border-color 0.15s;
+}
+
+/* Shelter/hospital row */
+.shelter-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.875rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(30, 41, 59, 0.6);
+  background-color: rgba(15, 23, 42, 0.4);
+}
+
+/* Sync queue entry */
+.sync-entry {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  color: #CBD5E1;
+  background-color: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(30, 41, 59, 0.6);
+}
+
+/* Coord label monospace */
+.coord-label {
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  font-size: 0.7rem;
+  color: #94A3B8;
+  letter-spacing: 0.05em;
+}
+
+/* Illustrative data disclaimer tag */
+.data-label {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  background-color: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #FCD34D;
+  border-radius: 0.25rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* GIS map SVG container */
+.gis-map-container {
+  position: relative;
+  width: 100%;
+  height: 460px;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid rgba(30, 41, 59, 0.8);
+  background-color: #0B1829;
+}
+.gis-map-container svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Video container */
+.video-container {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid rgba(30, 41, 59, 0.8);
+  background-color: #000;
+}
+.video-container video {
+  width: 100%;
+  display: block;
+  max-height: 420px;
+  background-color: #000;
+}
+
+/* Details/summary expandable */
+details > summary {
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background-color: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(30, 41, 59, 0.6);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #CBD5E1;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.15s;
+  user-select: none;
+}
+details > summary::-webkit-details-marker { display: none; }
+details > summary::before {
+  content: "▶";
+  font-size: 0.65rem;
+  color: #3B82F6;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+details[open] > summary::before { transform: rotate(90deg); }
+details > summary:hover { background-color: rgba(30, 41, 59, 0.6); }
+details .details-content {
+  padding: 1rem;
+  border: 1px solid rgba(30, 41, 59, 0.5);
+  border-top: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  font-size: 0.8125rem;
+  color: #CBD5E1;
+  line-height: 1.65;
+}
+
+/* Pulsing dot for critical alerts */
+.pulse-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Animated badge-critical (pulsing) */
+.badge-critical { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+/* Print-only section is hidden on screen */
+.print-report-section { display: none; }
+
+/* ============================================================
+   CSS-ONLY DARK / LIGHT MODE THEME TOGGLE
+   Powered by :has(#theme-mode-toggle:checked) — 100% Zero JavaScript
+   ============================================================ */
+
+/* Toggle Button Styling */
+.theme-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  background-color: rgba(15, 23, 42, 0.85);
+  color: #93C5FD;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.theme-toggle-label:hover {
+  background-color: rgba(30, 58, 138, 0.6);
+  border-color: #3B82F6;
+  color: #FFFFFF;
+}
+.theme-toggle-label:focus-visible {
+  outline: 3px solid #3B82F6;
+  outline-offset: 2px;
+}
+
+/* Default state (Dark Mode active) */
+.theme-toggle-label .theme-icon-light { display: none; }
+.theme-toggle-label .theme-icon-dark  { display: inline-flex; align-items: center; gap: 0.25rem; }
+
+/* Active state (Light Mode active when checkbox is checked) */
+/* Active state (Light Mode active when checkbox is checked) */
+body:has(#theme-mode-toggle:checked) .theme-toggle-label {
+  background: linear-gradient(135deg, #FEF08A 0%, #BAE6FD 100%) !important;
+  border-color: #FACC15 !important;
+  color: #713F12 !important;
+  box-shadow: 0 1px 4px rgba(250, 204, 21, 0.3) !important;
+}
+body:has(#theme-mode-toggle:checked) .theme-toggle-label .theme-icon-dark  { display: none; }
+body:has(#theme-mode-toggle:checked) .theme-toggle-label .theme-icon-light { display: inline-flex; align-items: center; gap: 0.25rem; font-weight: 700; }
+
+/* ── Harmonized Pastel Blue & Yellow Daylight Theme ── */
+body:has(#theme-mode-toggle:checked) {
+  background: linear-gradient(180deg, #F0F9FF 0%, #FEFCE8 450px, #F8FAFC 900px) no-repeat fixed, #F8FAFC !important;
+  color: #0F172A !important;
+}
+
+/* Global transitions for fluid theme toggle */
+body, .site-header, .resq-card, .incident-card, .team-card, .resource-card, .defcon-alert-banner, .filter-label, nav, .hero-section {
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+/* Universal text synchronization in light mode — fixes all text-white and light slate elements */
+body:has(#theme-mode-toggle:checked) .text-white,
+body:has(#theme-mode-toggle:checked) .text-slate-100,
+body:has(#theme-mode-toggle:checked) .text-slate-200 {
+  color: #0F172A !important;
+}
+body:has(#theme-mode-toggle:checked) .text-slate-300 {
+  color: #334155 !important;
+}
+body:has(#theme-mode-toggle:checked) .text-slate-400 {
+  color: #475569 !important;
+}
+body:has(#theme-mode-toggle:checked) .text-slate-500 {
+  color: #64748B !important;
+}
+
+/* Universal dark container override — prevents dark boxes in light mode */
+body:has(#theme-mode-toggle:checked) .bg-slate-900,
+body:has(#theme-mode-toggle:checked) .bg-slate-950,
+body:has(#theme-mode-toggle:checked) .bg-slate-800 {
+  background-color: #FFFFFF !important;
+}
+body:has(#theme-mode-toggle:checked) .border-slate-800,
+body:has(#theme-mode-toggle:checked) .border-slate-700 {
+  border-color: #E2E8F0 !important;
+}
+
+/* 1. DEFCON Alert Banner — Warm Pastel Amber & Yellow */
+body:has(#theme-mode-toggle:checked) .defcon-alert-banner {
+  background: linear-gradient(90deg, #FEF3C7 0%, #FEF9C3 50%, #EFF6FF 100%) !important;
+  border-bottom: 1px solid #FDE68A !important;
+  color: #854D0E !important;
+}
+body:has(#theme-mode-toggle:checked) .defcon-alert-banner .text-red-300,
+body:has(#theme-mode-toggle:checked) .defcon-alert-banner .text-red-200 {
+  color: #92400E !important;
+}
+body:has(#theme-mode-toggle:checked) .defcon-alert-banner .font-black {
+  color: #B45309 !important;
+}
+
+/* 2. Site Header in Light Mode — Pastel Sky Glass */
+body:has(#theme-mode-toggle:checked) .site-header {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  border-bottom: 1px solid #BAE6FD !important;
+  box-shadow: 0 2px 8px -2px rgba(186, 230, 253, 0.4) !important;
+}
+body:has(#theme-mode-toggle:checked) .site-header .site-header-inner .text-white {
+  color: #0F172A !important;
+}
+body:has(#theme-mode-toggle:checked) .site-header .site-header-inner .text-slate-400 {
+  color: #0369A1 !important;
+}
+
+/* Header DEFCON Status Badge — Pastel Yellow/Amber */
+body:has(#theme-mode-toggle:checked) .defcon-status-bar {
+  background-color: #FEF9C3 !important;
+  border: 1px solid #FDE047 !important;
+  color: #1E293B !important;
+}
+body:has(#theme-mode-toggle:checked) .defcon-status-bar .text-red-400 {
+  color: #B45309 !important;
+}
+body:has(#theme-mode-toggle:checked) .defcon-status-bar .text-slate-200 {
+  color: #713F12 !important;
+}
+
+/* Header Online Badge — Pastel Mint & Blue */
+body:has(#theme-mode-toggle:checked) .online-badge {
+  background-color: #ECFDF5 !important;
+  border: 1px solid #A7F3D0 !important;
+  color: #065F46 !important;
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.1) !important;
+}
+body:has(#theme-mode-toggle:checked) .online-badge .bg-emerald-400 {
+  background-color: #10B981 !important;
+}
+
+/* Header Sync Queue Pill — Pastel Blue/Yellow Accent */
+body:has(#theme-mode-toggle:checked) .site-header .border-slate-700 {
+  background-color: #EFF6FF !important;
+  border-color: #BFDBFE !important;
+  color: #1E40AF !important;
+}
+body:has(#theme-mode-toggle:checked) .site-header .text-amber-400 {
+  color: #D97706 !important;
+}
+
+/* Navigation Row in Light Mode — Pastel Blue/Cream */
+body:has(#theme-mode-toggle:checked) nav {
+  background: rgba(240, 249, 255, 0.85) !important;
+  border-top: 1px solid #E0F2FE !important;
+}
+body:has(#theme-mode-toggle:checked) .nav-link {
+  color: #0369A1 !important;
+  font-weight: 600 !important;
+}
+body:has(#theme-mode-toggle:checked) .nav-link:hover {
+  background-color: #FEF9C3 !important;
+  color: #854D0E !important;
+}
+
+/* 3. Hero Section in Light Mode — Sunrise Pastel Blue & Yellow */
+body:has(#theme-mode-toggle:checked) .hero-section {
+  background: linear-gradient(135deg, #EFF6FF 0%, #F0F9FF 35%, #FEF9C3 75%, #FEF08A 100%) !important;
+  border: 1px solid #BAE6FD !important;
+  box-shadow: 0 10px 25px -5px rgba(186, 230, 253, 0.4), 0 4px 10px -2px rgba(254, 240, 138, 0.3) !important;
+}
+body:has(#theme-mode-toggle:checked) .hero-section h1 {
+  color: #0F172A !important;
+}
+body:has(#theme-mode-toggle:checked) .hero-section h1 span {
+  background-image: linear-gradient(90deg, #1D4ED8 0%, #0284C7 50%, #B45309 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+body:has(#theme-mode-toggle:checked) .hero-section p {
+  color: #1E293B !important;
+}
+body:has(#theme-mode-toggle:checked) .hero-section .bg-red-950\/80 {
+  background-color: #FEF3C7 !important;
+  border-color: #FDE68A !important;
+  color: #92400E !important;
+}
+body:has(#theme-mode-toggle:checked) .hero-section .bg-slate-900\/80 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  color: #64748B !important;
+}
+
+/* 4. ResQ Cards in Light Mode — Pastel Framed Crisp Cards */
+body:has(#theme-mode-toggle:checked) .resq-card {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E0F2FE !important;
+  box-shadow: 0 2px 8px -2px rgba(56, 189, 248, 0.08), 0 1px 3px 0 rgba(0, 0, 0, 0.03) !important;
+}
+body:has(#theme-mode-toggle:checked) .resq-card:hover {
+  border-color: #BAE6FD !important;
+  box-shadow: 0 8px 20px -4px rgba(56, 189, 248, 0.15), 0 2px 6px -1px rgba(0, 0, 0, 0.04) !important;
+}
+body:has(#theme-mode-toggle:checked) .resq-card h2,
+body:has(#theme-mode-toggle:checked) .resq-card h3,
+body:has(#theme-mode-toggle:checked) .section-heading {
+  color: #0F172A !important;
+}
+
+/* Emergency Directive Card — Pastel Yellow Glow */
+body:has(#theme-mode-toggle:checked) .resq-card.border-l-4.border-l-red-600 {
+  background: linear-gradient(90deg, #FEF9C3 0%, #FFFFFF 18%) !important;
+  border-color: #FDE047 !important;
+  border-left-color: #DC2626 !important;
+}
+
+/* 5. Stat Cards in Light Mode — Pastel Blue/Yellow Gradient Tops */
+body:has(#theme-mode-toggle:checked) .stat-card {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+}
+body:has(#theme-mode-toggle:checked) .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px -4px rgba(56, 189, 248, 0.15) !important;
+}
+body:has(#theme-mode-toggle:checked) .stat-card:nth-child(1) {
+  background: linear-gradient(180deg, #FEF2F2 0%, #FFFFFF 38%) !important;
+}
+body:has(#theme-mode-toggle:checked) .stat-card:nth-child(2) {
+  background: linear-gradient(180deg, #EFF6FF 0%, #FFFFFF 38%) !important;
+}
+body:has(#theme-mode-toggle:checked) .stat-card:nth-child(3) {
+  background: linear-gradient(180deg, #FEFCE8 0%, #FFFFFF 38%) !important;
+}
+body:has(#theme-mode-toggle:checked) .stat-card:nth-child(4) {
+  background: linear-gradient(180deg, #ECFDF5 0%, #FFFFFF 38%) !important;
+}
+body:has(#theme-mode-toggle:checked) .stat-card .border-t-slate-800 {
+  border-top-color: #E2E8F0 !important;
+}
+
+/* 6. Severity Badges in Light Mode — Pastel Tints */
+body:has(#theme-mode-toggle:checked) .badge-critical {
+  background-color: #FEE2E2 !important;
+  border: 1px solid #FCA5A5 !important;
+  color: #991B1B !important;
+}
+body:has(#theme-mode-toggle:checked) .badge-high {
+  background-color: #FFEDD5 !important;
+  border: 1px solid #FDBA74 !important;
+  color: #9A3412 !important;
+}
+body:has(#theme-mode-toggle:checked) .badge-medium {
+  background-color: #FEF9C3 !important;
+  border: 1px solid #FDE047 !important;
+  color: #854D0E !important;
+}
+body:has(#theme-mode-toggle:checked) .badge-low {
+  background-color: #DCFCE7 !important;
+  border: 1px solid #86EFAC !important;
+  color: #166534 !important;
+}
+
+/* Sync Badges in Light Mode — Pastel Amber & Sky */
+body:has(#theme-mode-toggle:checked) .badge-sync-pending {
+  background-color: #FEF9C3 !important;
+  border: 1px solid #FDE047 !important;
+  color: #854D0E !important;
+}
+body:has(#theme-mode-toggle:checked) .badge-sync-synced {
+  background-color: #E0F2FE !important;
+  border: 1px solid #BAE6FD !important;
+  color: #0369A1 !important;
+}
+
+/* Team Badges in Light Mode — Pastel Blue & Mint */
+body:has(#theme-mode-toggle:checked) .badge-team-deployed {
+  background-color: #DBEAFE !important;
+  border: 1px solid #93C5FD !important;
+  color: #1E40AF !important;
+}
+body:has(#theme-mode-toggle:checked) .badge-team-available {
+  background-color: #DCFCE7 !important;
+  border: 1px solid #86EFAC !important;
+  color: #15803D !important;
+}
+body:has(#theme-mode-toggle:checked) .badge-team-standby {
+  background-color: #F1F5F9 !important;
+  border: 1px solid #CBD5E1 !important;
+  color: #475569 !important;
+}
+
+/* Data Labels in Light Mode — Pastel Warm Canary */
+body:has(#theme-mode-toggle:checked) .data-label {
+  background-color: #FEF9C3 !important;
+  border: 1px solid #FDE047 !important;
+  color: #854D0E !important;
+}
+
+/* 7. Incident Cards in Light Mode — Harmonized Pastel Accents */
+body:has(#theme-mode-toggle:checked) .incident-card {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+body:has(#theme-mode-toggle:checked) .incident-card:hover {
+  background-color: #F0F9FF !important;
+  border-color: #BAE6FD !important;
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.12) !important;
+}
+body:has(#theme-mode-toggle:checked) .incident-card.inc-critical {
+  border-left: 4px solid #DC2626 !important;
+  background: linear-gradient(90deg, #FFF5F5 0%, #FFFFFF 15%) !important;
+}
+body:has(#theme-mode-toggle:checked) .incident-card.inc-high {
+  border-left: 4px solid #EA580C !important;
+  background: linear-gradient(90deg, #FFFBF5 0%, #FFFFFF 15%) !important;
+}
+body:has(#theme-mode-toggle:checked) .incident-card.inc-medium {
+  border-left: 4px solid #F59E0B !important;
+  background: linear-gradient(90deg, #FEFCE8 0%, #FFFFFF 15%) !important;
+}
+body:has(#theme-mode-toggle:checked) .incident-card.inc-low {
+  border-left: 4px solid #10B981 !important;
+  background: linear-gradient(90deg, #F0FDF4 0%, #FFFFFF 15%) !important;
+}
+body:has(#theme-mode-toggle:checked) .incident-list .incident-card:nth-child(even) {
+  background-color: #F8FAFC !important;
+}
+body:has(#theme-mode-toggle:checked) .incident-list .incident-card:nth-child(odd) {
+  background-color: #FFFFFF !important;
+}
+
+/* 8. Filter Labels in Light Mode — Pastel Blue & Yellow */
+body:has(#theme-mode-toggle:checked) .filter-label {
+  background-color: #FFFFFF !important;
+  border: 1px solid #BAE6FD !important;
+  color: #0369A1 !important;
+  box-shadow: 0 1px 2px rgba(186, 230, 253, 0.25) !important;
+}
+body:has(#theme-mode-toggle:checked) .filter-label:hover {
+  background-color: #FEF9C3 !important;
+  border-color: #FDE047 !important;
+  color: #854D0E !important;
+}
+
+/* Checked Filter Pills in Light Mode — Vibrant Sky Blue / Navy */
+body:has(#theme-mode-toggle:checked) #inc-filter-critical:checked ~ .filter-bar label[for="inc-filter-critical"],
+body:has(#theme-mode-toggle:checked) #inc-filter-high:checked ~ .filter-bar label[for="inc-filter-high"],
+body:has(#theme-mode-toggle:checked) #inc-filter-medium:checked ~ .filter-bar label[for="inc-filter-medium"],
+body:has(#theme-mode-toggle:checked) #inc-filter-low:checked ~ .filter-bar label[for="inc-filter-low"],
+body:has(#theme-mode-toggle:checked) #inc-filter-all:checked ~ .filter-bar label[for="inc-filter-all"] {
+  background: linear-gradient(135deg, #0284C7 0%, #1D4ED8 100%) !important;
+  border-color: #0369A1 !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  box-shadow: 0 3px 8px rgba(2, 132, 199, 0.3) !important;
+}
+
+body:has(#theme-mode-toggle:checked) #team-filter-deployed:checked ~ .team-filter-bar label[for="team-filter-deployed"],
+body:has(#theme-mode-toggle:checked) #team-filter-available:checked ~ .team-filter-bar label[for="team-filter-available"],
+body:has(#theme-mode-toggle:checked) #team-filter-standby:checked ~ .team-filter-bar label[for="team-filter-standby"],
+body:has(#theme-mode-toggle:checked) #team-filter-all:checked ~ .team-filter-bar label[for="team-filter-all"] {
+  background: linear-gradient(135deg, #0284C7 0%, #1D4ED8 100%) !important;
+  border-color: #0369A1 !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  box-shadow: 0 3px 8px rgba(2, 132, 199, 0.3) !important;
+}
+
+/* 9. Team & Resource Cards in Light Mode */
+body:has(#theme-mode-toggle:checked) .team-card {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E0F2FE !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+body:has(#theme-mode-toggle:checked) .team-card:hover {
+  border-color: #BAE6FD !important;
+  box-shadow: 0 6px 16px -2px rgba(56, 189, 248, 0.15) !important;
+}
+/* Team icon boxes in pastel tints */
+body:has(#theme-mode-toggle:checked) .team-card .bg-blue-950\/60,
+body:has(#theme-mode-toggle:checked) .team-card .bg-cyan-950\/60,
+body:has(#theme-mode-toggle:checked) .team-card .bg-indigo-950\/60 {
+  background-color: #F0F9FF !important;
+  border: 1px solid #BAE6FD !important;
+}
+body:has(#theme-mode-toggle:checked) .team-card .bg-red-950\/60 {
+  background-color: #FEF2F2 !important;
+  border: 1px solid #FECACA !important;
+}
+body:has(#theme-mode-toggle:checked) .team-card .bg-emerald-950\/60 {
+  background-color: #ECFDF5 !important;
+  border: 1px solid #A7F3D0 !important;
+}
+body:has(#theme-mode-toggle:checked) .team-card .bg-slate-800\/60 {
+  background-color: #FEFCE8 !important;
+  border: 1px solid #FEF08A !important;
+}
+
+body:has(#theme-mode-toggle:checked) .resource-card {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E0F2FE !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+body:has(#theme-mode-toggle:checked) .resource-card:hover {
+  border-color: #FEF08A !important;
+  box-shadow: 0 4px 10px rgba(254, 240, 138, 0.2) !important;
+}
+
+/* 10. Shelters, Hospitals & Progress Tracks in Light Mode */
+body:has(#theme-mode-toggle:checked) .shelter-row {
+  background: linear-gradient(90deg, #F8FAFC 0%, #FFFFFF 100%) !important;
+  border: 1px solid #E0F2FE !important;
+}
+body:has(#theme-mode-toggle:checked) .shelter-row span[class*="bg-red-950"] {
+  background-color: #FEE2E2 !important;
+  border-color: #FCA5A5 !important;
+  color: #991B1B !important;
+}
+body:has(#theme-mode-toggle:checked) .shelter-row span[class*="bg-orange-950"] {
+  background-color: #FFEDD5 !important;
+  border-color: #FDBA74 !important;
+  color: #9A3412 !important;
+}
+body:has(#theme-mode-toggle:checked) .shelter-row span[class*="bg-emerald-950"] {
+  background-color: #DCFCE7 !important;
+  border-color: #86EFAC !important;
+  color: #166534 !important;
+}
+body:has(#theme-mode-toggle:checked) .progress-track {
+  background-color: #EFF6FF !important;
+  border: 1px solid #DBEAFE !important;
+}
+
+/* 11. Details & Summary in Light Mode — Pastel Cream & Sky */
+body:has(#theme-mode-toggle:checked) details > summary {
+  background: linear-gradient(90deg, #F0F9FF 0%, #FEFCE8 100%) !important;
+  border: 1px solid #BAE6FD !important;
+  color: #0F172A !important;
+}
+body:has(#theme-mode-toggle:checked) details > summary:hover {
+  background: linear-gradient(90deg, #E0F2FE 0%, #FEF9C3 100%) !important;
+  border-color: #7DD3FC !important;
+}
+body:has(#theme-mode-toggle:checked) details .details-content {
+  background-color: #FFFFFF !important;
+  border: 1px solid #BAE6FD !important;
+  border-top: none !important;
+  color: #334155 !important;
+}
+
+/* 12. Sync Queue in Light Mode */
+body:has(#theme-mode-toggle:checked) .sync-entry {
+  background-color: #F8FAFC !important;
+  border: 1px solid #E2E8F0 !important;
+  color: #1E293B !important;
+}
+
+/* 13. GIS Map & Coordinate Labels in Light Mode */
+body:has(#theme-mode-toggle:checked) .gis-section .bg-amber-950\/40 {
+  background-color: #FEF9C3 !important;
+  border: 1px solid #FDE047 !important;
+  color: #854D0E !important;
+}
+body:has(#theme-mode-toggle:checked) .coord-label {
+  color: #0369A1 !important;
+  background-color: #E0F2FE !important;
+  border: 1px solid #BAE6FD !important;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+}
+
+/* 14. Video Section & Notice in Light Mode */
+body:has(#theme-mode-toggle:checked) .video-section .bg-blue-950\/40 {
+  background-color: #EFF6FF !important;
+  border: 1px solid #BFDBFE !important;
+  color: #1E40AF !important;
+}
+body:has(#theme-mode-toggle:checked) .video-container {
+  border-color: #BAE6FD !important;
+}
+
+/* 15. Form Inputs & Search in Light Mode */
+body:has(#theme-mode-toggle:checked) .form-input,
+body:has(#theme-mode-toggle:checked) .emergency-search {
+  background-color: #FFFFFF !important;
+  border: 1px solid #BAE6FD !important;
+  color: #0F172A !important;
+  box-shadow: 0 1px 2px rgba(186, 230, 253, 0.2) !important;
+}
+body:has(#theme-mode-toggle:checked) .emergency-search::placeholder {
+  color: #94A3B8 !important;
+}
+body:has(#theme-mode-toggle:checked) .form-input:focus,
+body:has(#theme-mode-toggle:checked) .emergency-search:focus {
+  border-color: #0284C7 !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+}
+body:has(#theme-mode-toggle:checked) kbd {
+  background-color: #FEF9C3 !important;
+  border-color: #FDE047 !important;
+  color: #854D0E !important;
+}
+
+/* 16. Footer in Light Mode */
+body:has(#theme-mode-toggle:checked) .site-footer {
+  background: linear-gradient(180deg, #F8FAFC 0%, #F0F9FF 100%) !important;
+  border-top: 1px solid #BAE6FD !important;
+}
+body:has(#theme-mode-toggle:checked) .site-footer .text-white {
+  color: #0F172A !important;
+}
+body:has(#theme-mode-toggle:checked) .site-footer .text-slate-400,
+body:has(#theme-mode-toggle:checked) .site-footer .text-slate-500,
+body:has(#theme-mode-toggle:checked) .site-footer .text-slate-600 {
+  color: #475569 !important;
+}
+
+
+
