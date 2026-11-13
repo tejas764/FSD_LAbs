@@ -1,4 +1,26 @@
-# Demonstration guide
+<p align="center">
+  <a href="README.md"><strong>OVERVIEW</strong></a> &nbsp; · &nbsp;
+  <a href="DEMO.md"><strong>DEMO & SCREENSHOTS</strong></a> &nbsp; · &nbsp;
+  <a href="DEMO.md#demo-setup"><strong>SETUP & DEPLOYMENT</strong></a>
+</p>
+
+<div align="center">
+
+# Demo Studio
+
+**FSD_LAbs**
+
+Walk through the experience. Explore the visuals. Prepare your demo.
+
+</div>
+
+---
+
+## Visual preview
+
+> **Preview status:** Fresh application screenshots have not yet been captured. The walkthrough below describes how to prepare the demo.
+
+---
 
 ## Five-minute walkthrough
 
@@ -8,6 +30,8 @@
 4. Change a resource quantity and inspect the queue.
 5. Reconnect and select Sync Now. Explain that this changes local state only.
 6. Export JSON/CSV before resetting the demonstration database.
+
+<a id="demo-setup"></a>
 
 ## Deployment
 
