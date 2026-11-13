@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="README.md"><strong>OVERVIEW</strong></a> &nbsp; · &nbsp;
+  <a href="DEMO.md"><strong>DEMO & SCREENSHOTS</strong></a> &nbsp; · &nbsp;
+  <a href="DEMO.md#demo-setup"><strong>SETUP & DEPLOYMENT</strong></a>
+</p>
+
 # ResQNet — Disaster Relief Coordination Prototype
 
 **Connecting Help. Saving Lives.**
