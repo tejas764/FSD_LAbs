@@ -1,0 +1,4 @@
+FROM nginx:stable-alpine
+COPY index.html sw.js manifest.webmanifest /usr/share/nginx/html/
+COPY dist/ /usr/share/nginx/html/dist/
+EXPOSE 80
