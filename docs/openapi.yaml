@@ -1,0 +1,2351 @@
+# AUTO-GENERATED — do not edit by hand.
+# Source of truth: @Api* decorators in apps/api/src/
+# Regenerate: cd apps/api && npm run openapi:export
+
+openapi: 3.1.0
+paths:
+  /api/v1/health:
+    get:
+      operationId: HealthController_getHealth
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+      tags:
+        - health
+  /api/v1/reports/stream:
+    get:
+      description: |-
+        Server-Sent Events stream for a given crisis.
+
+        **Events emitted:**
+        - `ready` — connection established
+        - `report.updated` — new/updated damage report
+        - `export.complete` — export job finished; includes `url` and `expiresAt`
+        - `: heartbeat` comment — keepalive every 15 s
+      operationId: ReportsController_streamReports
+      parameters:
+        - name: crisisId
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - bearerAuth: []
+      summary: Subscribe to realtime report and export updates (SSE)
+      tags: &ref_0
+        - reports
+  /api/v1/reports/stream/public:
+    get:
+      description: |-
+        Public Server-Sent Events stream for community reporters. No authentication required.
+
+        **Events emitted:**
+        - `ready` — connection established
+        - `report.updated` — new/updated damage report
+        - `: heartbeat` comment — keepalive every 15 s
+      operationId: ReportsController_streamReportsPublic
+      parameters:
+        - name: crisisId
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SSE stream established successfully
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        '400':
+          description: Validation error
+      summary: Subscribe to realtime report updates (SSE) — unauthenticated
+      tags: *ref_0
+  /api/v1/reports:
+    get:
+      operationId: ReportsController_listReports
+      parameters:
+        - name: cursor
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            type: number
+        - name: dateTo
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: dateFrom
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: moderationStatus
+          required: false
+          in: query
+          schema:
+            enum:
+              - PENDING
+              - FLAGGED
+              - UNDER_REVIEW
+              - APPROVED
+              - REJECTED
+            type: string
+        - name: damageLevel
+          required: false
+          in: query
+          schema:
+            enum:
+              - MINIMAL
+              - PARTIAL
+              - COMPLETE
+            type: string
+        - name: bounds
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: crisisId
+          required: false
+          in: query
+          description: Filter by crisis. If omitted, `bounds` is required (unless caller is admin).
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportGeoJsonFeatureCollectionDto'
+        '400':
+          description: Validation error
+      summary: List reports as GeoJSON
+      tags: *ref_0
+    post:
+      description: >-
+        Rate-limited per IP. Provide `X-Idempotency-Key` (UUID) for offline-safe replay — replayed keys return HTTP 200
+        with the original report instead of creating a duplicate.
+      operationId: ReportsController_submitReport
+      parameters:
+        - name: X-Idempotency-Key
+          in: header
+          description: Client-generated UUID. On replay returns 200 with the original report (no new row created).
+          required: false
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateReportMultipartDto'
+      responses:
+        '200':
+          description: Idempotent replay — X-Idempotency-Key already used. Original report returned; no duplicate created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitReportResponseDto'
+        '201':
+          description: Report created (new submission)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitReportResponseDto'
+        '400':
+          description: Validation error
+        '429':
+          description: Rate limit exceeded
+      summary: Submit a damage report
+      tags: *ref_0
+  /api/v1/reports/export:
+    post:
+      operationId: ReportsController_createExport
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExportRequestDto'
+      responses:
+        '202':
+          description: Export job queued — poll GET /reports/export/:jobId for status and download URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportJobQueuedDto'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - bearerAuth: []
+      summary: Queue reports export job
+      tags: *ref_0
+  /api/v1/reports/export/{jobId}:
+    get:
+      operationId: ReportsController_getExportStatus
+      parameters:
+        - name: jobId
+          required: true
+          in: path
+          description: Export job ID returned by POST /reports/export
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportJobStatusDto'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Export job not found
+      security:
+        - bearerAuth: []
+      summary: Get reports export job status
+      tags: *ref_0
+  /api/v1/reports/{id}:
+    get:
+      operationId: ReportsController_getReportById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Report UUID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportDetailResponseDto'
+        '404':
+          description: Report not found
+      summary: Get a single report by ID
+      tags: *ref_0
+    delete:
+      operationId: ReportsController_deleteReport
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Report UUID
+          schema:
+            type: string
+      responses:
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Report not found
+      security:
+        - bearerAuth: []
+      summary: Soft-delete a report (admin only)
+      tags: *ref_0
+    patch:
+      operationId: ReportsController_moderateReport
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Report UUID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModerateReportDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportModerationResponseDto'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Report not found
+      security:
+        - bearerAuth: []
+      summary: Moderate a report (analyst or admin)
+      tags: *ref_0
+  /api/v1/reports/{id}/anonymize:
+    post:
+      operationId: ReportsController_anonymizeReport
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Report UUID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportAnonymizeResponseDto'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Report not found
+      security:
+        - bearerAuth: []
+      summary: Anonymize report PII fields (admin only)
+      tags: *ref_0
+  /api/v1/reports/{id}/history:
+    get:
+      operationId: ReportsController_getReportHistory
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Report UUID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportHistoryResponseDto'
+        '404':
+          description: Report not found
+      summary: Get report history by building/location lineage
+      tags: *ref_0
+  /api/v1/reports/{id}/audit:
+    get:
+      operationId: ReportsController_getModerationAudit
+      parameters:
+        - name: pageSize
+          required: false
+          in: query
+          schema:
+            example: 20
+            type: number
+        - name: page
+          required: false
+          in: query
+          schema:
+            example: 1
+            type: number
+        - name: id
+          required: true
+          in: path
+          description: Report UUID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated moderation audit entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: '#/components/schemas/ModerationAuditResponseDto'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Report not found
+      security:
+        - bearerAuth: []
+      summary: List moderation audit entries for a report
+      tags: *ref_0
+  /api/v1/reporter/profile:
+    get:
+      operationId: ReporterController_getProfile
+      parameters:
+        - name: reporterId
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReporterProfileResponseDto'
+        '400':
+          description: reporterId query param is required
+        '404':
+          description: No profile found for reporterId
+      summary: Get reporter badge profile (no PII)
+      tags:
+        - reporter
+  /api/v1/crises:
+    get:
+      operationId: CrisesController_listCrises
+      parameters:
+        - name: lng
+          required: false
+          in: query
+          description: Reporter longitude — filters to crises whose bbox contains this point
+          schema:
+            type: number
+        - name: lat
+          required: false
+          in: query
+          description: Reporter latitude — filters to crises whose bbox contains this point
+          schema:
+            type: number
+        - name: take
+          required: false
+          in: query
+          description: Max results (default 50, max 50)
+          schema:
+            type: number
+        - name: country
+          required: false
+          in: query
+          description: Filter by country code
+          schema:
+            type: string
+        - name: q
+          required: false
+          in: query
+          description: Search by name (case-insensitive)
+          schema:
+            type: string
+        - name: active
+          required: false
+          in: query
+          description: Filter by active status
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CrisisDto'
+      summary: List all crises
+      tags: &ref_1
+        - crises
+    post:
+      operationId: CrisesController_createCrisis
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - type
+                - country
+                - startedAt
+              properties:
+                name:
+                  type: string
+                  example: Turkey Earthquake 2026
+                type:
+                  type: string
+                  enum:
+                    - EARTHQUAKE
+                    - FLOOD
+                    - TSUNAMI
+                    - HURRICANE_CYCLONE
+                    - WILDFIRE
+                    - EXPLOSION
+                    - CHEMICAL_INCIDENT
+                    - CONFLICT
+                    - CIVIL_UNREST
+                  example: EARTHQUAKE
+                country:
+                  type: string
+                  example: TUR
+                  description: ISO 3166-1 alpha-3 country code
+                region:
+                  type: string
+                  example: Kahramanmaraş
+                startedAt:
+                  type: string
+                  format: date-time
+                  example: '2026-02-06T00:00:00Z'
+                endedAt:
+                  type: string
+                  format: date-time
+                  example: '2026-02-10T00:00:00Z'
+                description:
+                  type: string
+                  example: Critical transport corridors are blocked by debris.
+                extentBBox:
+                  type: array
+                  items:
+                    type: number
+                  minItems: 4
+                  maxItems: 4
+                  description: Bounding box [minLng, minLat, maxLng, maxLat] (WGS-84) used for footprint lookup
+                  example:
+                    - 28
+                    - 38
+                    - 30
+                    - 40
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrisisMutationResponseDto'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limit exceeded
+      security:
+        - bearerAuth: []
+      summary: Create a new crisis
+      tags: *ref_1
+  /api/v1/crises/modular-fields:
+    post:
+      operationId: CrisesController_createModularField
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - crisisId
+                - infraType
+                - fieldKey
+              properties:
+                crisisId:
+                  type: string
+                  format: uuid
+                infraType:
+                  type: string
+                  enum:
+                    - RESIDENTIAL
+                    - COMMERCIAL
+                    - GOVERNMENT
+                    - UTILITY
+                    - TRANSPORT_COMMUNICATION
+                    - COMMUNITY
+                    - PUBLIC_RECREATION
+                    - OTHER
+                fieldKey:
+                  type: string
+                  example: wall_type
+                fieldType:
+                  type: string
+                  enum:
+                    - string
+                    - number
+                    - boolean
+                  default: string
+                required:
+                  type: boolean
+                  default: false
+                labels:
+                  type: object
+                  additionalProperties:
+                    type: string
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModularFieldMutationResponseDto'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '409':
+          description: Duplicate field key for this crisis and infraType
+      security:
+        - bearerAuth: []
+      summary: Create an admin-defined modular field for a crisis
+      tags: *ref_1
+    get:
+      operationId: CrisesController_listModularFields
+      parameters:
+        - name: crisisId
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModularFieldListResponseDto'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - bearerAuth: []
+      summary: List modular fields for a crisis
+      tags: *ref_1
+  /api/v1/crises/modular-fields/{id}:
+    delete:
+      operationId: CrisesController_deleteModularField
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+      security:
+        - bearerAuth: []
+      summary: Delete a modular field definition
+      tags: *ref_1
+  /api/v1/crises/{id}:
+    get:
+      operationId: CrisesController_getCrisis
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Crisis UUID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrisisDto'
+        '404':
+          description: Crisis not found
+      summary: Get a single crisis by ID
+      tags: *ref_1
+    patch:
+      operationId: CrisesController_patchCrisis
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Crisis UUID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Turkey Earthquake 2026
+                isActive:
+                  type: boolean
+                  example: false
+                region:
+                  type: string
+                  example: Kahramanmaraş
+                startedAt:
+                  type: string
+                  format: date-time
+                  example: '2026-02-06T00:00:00Z'
+                endedAt:
+                  type: string
+                  format: date-time
+                  example: '2026-02-10T00:00:00Z'
+                description:
+                  type: string
+                  example: Critical transport corridors are blocked by debris.
+                extentBBox:
+                  type: array
+                  items:
+                    type: number
+                  minItems: 4
+                  maxItems: 4
+                  description: Bounding box [minLng, minLat, maxLng, maxLat] (WGS-84) used for footprint lookup
+                  example:
+                    - 28
+                    - 38
+                    - 30
+                    - 40
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrisisMutationResponseDto'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Crisis not found
+        '429':
+          description: Rate limit exceeded
+      security:
+        - bearerAuth: []
+      summary: Update a crisis
+      tags: *ref_1
+  /api/v1/crises/{id}/footprints:
+    get:
+      operationId: CrisesController_getCrisisFootprints
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Crisis UUID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrisisFootprintFeatureCollectionDto'
+        '404':
+          description: Crisis not found
+      summary: Get building footprints for a crisis
+      tags: *ref_1
+  /api/v1/crises/{id}/modular-schema:
+    post:
+      operationId: CrisesController_getModularSchema
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Crisis UUID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - infraType
+              properties:
+                infraType:
+                  type: string
+                  enum:
+                    - RESIDENTIAL
+                    - COMMERCIAL
+                    - GOVERNMENT
+                    - UTILITY
+                    - TRANSPORT_COMMUNICATION
+                    - COMMUNITY
+                    - PUBLIC_RECREATION
+                    - OTHER
+                  example: RESIDENTIAL
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModularSchemaResponseDto'
+        '400':
+          description: Validation error
+        '404':
+          description: Crisis not found
+      summary: Get dynamic field schema for a crisis infra type
+      tags: *ref_1
+  /api/v1/analytics/hotspots:
+    get:
+      operationId: AnalyticsController_getHotspots
+      parameters:
+        - name: damageLevel
+          required: false
+          in: query
+          schema:
+            enum:
+              - MINIMAL
+              - PARTIAL
+              - COMPLETE
+            type: string
+        - name: crisisId
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HotspotResponseDto'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      summary: Get report hotspots clustered with H3
+      tags: &ref_2
+        - analytics
+  /api/v1/analytics/summary:
+    get:
+      operationId: AnalyticsController_getSummary
+      parameters:
+        - name: dateTo
+          required: false
+          in: query
+          description: Inclusive UTC end date in ISO-8601 format. Overrides period when present.
+          schema:
+            type: string
+        - name: dateFrom
+          required: false
+          in: query
+          description: Inclusive UTC start date in ISO-8601 format. Overrides period when present.
+          schema:
+            type: string
+        - name: period
+          required: false
+          in: query
+          description: Time window. Defaults to 7d.
+          schema:
+            enum:
+              - 7d
+              - 30d
+              - 90d
+              - 365d
+              - all
+            type: string
+        - name: crisisId
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SummaryResponseDto'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      security:
+        - bearerAuth: []
+      summary: Get overview summary for the dashboard (single aggregation)
+      tags: *ref_2
+  /api/v1/account/change-password:
+    post:
+      operationId: AccountController_changePassword
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - newPassword
+              properties:
+                currentPassword:
+                  type: string
+                newPassword:
+                  type: string
+                  minLength: 8
+      responses:
+        '201':
+          description: ''
+      summary: Change password with strict current-password validation
+      tags:
+        - account
+  /api/v1/setup/seed:
+    post:
+      operationId: SetupController_seed
+      parameters:
+        - name: authorization
+          in: header
+          description: Bearer <SEED_SECRET>
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Seed completed
+        '403':
+          description: Missing or invalid SEED_SECRET
+      summary: Seed database with initial data
+      tags:
+        - setup
+  /api/v1/field-messages:
+    post:
+      operationId: FieldMessagesController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFieldMessageDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldMessageResponseDto'
+        '400':
+          description: Invalid message or unpaired coordinates
+        '409':
+          description: Message ID already belongs to another device
+        '429':
+          description: Retry later; retain the original message ID
+      summary: Store a field note or SOS, replaying the same message ID safely
+      tags: &ref_3
+        - field-messages
+    get:
+      operationId: FieldMessagesController_list
+      parameters:
+        - name: deviceId
+          required: true
+          in: query
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldMessagesResponseDto'
+        '400':
+          description: A valid deviceId UUID is required
+      summary: Read this anonymous device's latest 200 stored messages
+      tags: *ref_3
+  /api/v1/volunteers/enroll:
+    post:
+      operationId: VolunteersController_enroll
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      summary: Enroll the authenticated account as a volunteer; verification remains pending
+      tags: &ref_4
+        - volunteers
+  /api/v1/volunteers/me:
+    get:
+      operationId: VolunteersController_me
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags: *ref_4
+    patch:
+      operationId: VolunteersController_updateProfile
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags: *ref_4
+  /api/v1/volunteers/availability:
+    patch:
+      operationId: VolunteersController_availability
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags: *ref_4
+  /api/v1/volunteers/tasks:
+    get:
+      operationId: VolunteersController_tasks
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags: *ref_4
+  /api/v1/volunteers/tasks/{id}/accept:
+    post:
+      operationId: VolunteersController_acceptTask
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags: *ref_4
+  /api/v1/volunteers/assignments/{id}/respond:
+    post:
+      operationId: VolunteersController_respond
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags: *ref_4
+  /api/v1/volunteers/assignments/{id}/progress:
+    patch:
+      operationId: VolunteersController_progress
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags: *ref_4
+  /api/v1/volunteers/assignments/{id}/complete:
+    post:
+      operationId: VolunteersController_complete
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags: *ref_4
+  /api/v1/volunteers/check-ins:
+    post:
+      operationId: VolunteersController_checkIn
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags: *ref_4
+  /api/v1/volunteers/admin/overview:
+    get:
+      operationId: VolunteersController_overview
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags: *ref_4
+  /api/v1/volunteers/admin/profiles/{id}/verification:
+    patch:
+      operationId: VolunteersController_verification
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags: *ref_4
+  /api/v1/volunteers/admin/tasks:
+    post:
+      operationId: VolunteersController_createTask
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags: *ref_4
+  /api/v1/volunteers/admin/tasks/{id}/assign:
+    post:
+      operationId: VolunteersController_assign
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags: *ref_4
+  /api/v1/volunteers/admin/assignments/{id}/review:
+    post:
+      operationId: VolunteersController_review
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags: *ref_4
+  /api/v1/volunteers/admin/shifts:
+    post:
+      operationId: VolunteersController_shift
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags: *ref_4
+info:
+  title: CrisisMap API
+  description: Crisis damage reporting API for UNDP field operations.
+  version: 1.0.0
+  contact: {}
+tags: []
+servers:
+  - url: /
+    description: Current host (recommended)
+  - url: http://localhost:4000
+    description: Localhost direct
+components:
+  securitySchemes:
+    bearerAuth:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+      in: header
+  schemas:
+    CreateReportMultipartDto:
+      type: object
+      properties:
+        photo:
+          type: string
+          format: binary
+        crisisId:
+          type: string
+        damageLevel:
+          type: string
+          enum:
+            - MINIMAL
+            - PARTIAL
+            - COMPLETE
+        infraType:
+          type: string
+          enum:
+            - RESIDENTIAL
+            - COMMERCIAL
+            - GOVERNMENT
+            - UTILITY
+            - TRANSPORT_COMMUNICATION
+            - COMMUNITY
+            - PUBLIC_RECREATION
+            - OTHER
+        crisisType:
+          type: string
+          enum:
+            - EARTHQUAKE
+            - FLOOD
+            - TSUNAMI
+            - HURRICANE_CYCLONE
+            - WILDFIRE
+            - EXPLOSION
+            - CHEMICAL_INCIDENT
+            - CONFLICT
+            - CIVIL_UNREST
+        hasDebris:
+          type: string
+        collectedAt:
+          type: string
+          format: date-time
+        description:
+          type: string
+        electricityCondition:
+          type: string
+          enum:
+            - NO_DAMAGE
+            - MINOR_DAMAGE
+            - MODERATE_DAMAGE
+            - SEVERE_DAMAGE
+            - COMPLETELY_DESTROYED
+            - UNKNOWN
+          description: Electricity infrastructure condition (UNDP Appendix 1)
+        healthServicesFunctioning:
+          type: string
+          enum:
+            - FULLY_FUNCTIONAL
+            - PARTIALLY_FUNCTIONAL
+            - LARGELY_DISRUPTED
+            - NOT_FUNCTIONING
+            - UNKNOWN
+          description: Health services functioning status (UNDP Appendix 1)
+        pressingNeeds:
+          type: array
+          description: JSON-serialized array of PressingNeed enum values, e.g. ["FOOD_WATER","SHELTER_REPAIR"] (UNDP Appendix 1)
+          example: '["FOOD_WATER","SHELTER_REPAIR"]'
+          items:
+            type: string
+            enum:
+              - FOOD_WATER
+              - CASH_ASSISTANCE
+              - HEALTHCARE_MEDICINES
+              - SHELTER_REPAIR
+              - LIVELIHOODS_RESTORATION
+              - WASH
+              - BASIC_SERVICES
+              - PROTECTION_PSYCHOSOCIAL
+              - LOCAL_AUTHORITY_SUPPORT
+              - OTHER
+        pressingNeedsOther:
+          type: string
+          description: Free-text description of other pressing needs (required when OTHER is selected)
+          maxLength: 500
+        descriptionLang:
+          type: string
+          example: ar
+          description: BCP-47 language tag for the submitted description
+        extraFields:
+          type: string
+          description: JSON-serialized object of additional crisis-specific fields
+        latitude:
+          type: string
+        longitude:
+          type: string
+        locationText:
+          type: string
+        buildingId:
+          type: string
+        infraName:
+          type: string
+        reporterId:
+          type: string
+          description: Optional reporter identifier for attributing submissions to a badge profile.
+      required:
+        - photo
+        - crisisId
+        - damageLevel
+        - infraType
+        - crisisType
+        - hasDebris
+        - collectedAt
+        - description
+        - electricityCondition
+        - healthServicesFunctioning
+        - pressingNeeds
+        - infraName
+    CreateExportRequestDto:
+      type: object
+      properties:
+        crisisId:
+          type: string
+          example: 550e8400-e29b-41d4-a716-446655440000
+          description: >-
+            UUID of the crisis to export reports for. Optional for admins when exporting across all crises with a
+            bounded date range.
+        format:
+          type: string
+          enum:
+            - csv
+            - geojson
+            - shapefile
+          example: csv
+          description: >-
+            Output format. csv gives a flat spreadsheet; geojson gives a FeatureCollection suitable for GIS tools;
+            shapefile gives a zipped ESRI shapefile.
+        dateFrom:
+          type: string
+          example: '2024-01-01T00:00:00Z'
+          description: ISO 8601 date-time — include only reports collected on or after this date
+        dateTo:
+          type: string
+          example: '2024-12-31T23:59:59Z'
+          description: ISO 8601 date-time — include only reports collected on or before this date
+        bounds:
+          type: string
+          example: 34.7,31.5,35.9,33.0
+          description: Bounding box filter as "minLng,minLat,maxLng,maxLat" (WGS-84)
+      required:
+        - format
+    ExportJobStatusDto:
+      type: object
+      properties:
+        jobId:
+          type: string
+          example: '42'
+          description: Export job ID (use in GET /reports/export/:jobId)
+        status:
+          type: string
+          enum:
+            - queued
+            - processing
+            - completed
+            - failed
+          example: queued
+          description: Current job state
+        url:
+          type: string
+          example: https://storage.example.com/exports/file.csv?X-Amz-Signature=...
+          description: Pre-signed download URL (present only when status is "completed")
+        expiresAt:
+          type: string
+          format: date-time
+          description: Expiry time of the download URL (ISO 8601)
+      required:
+        - jobId
+        - status
+    ExportJobQueuedDto:
+      type: object
+      properties:
+        jobId:
+          type: string
+          example: '42'
+          description: Export job ID — poll GET /reports/export/:jobId for status and download URL
+      required:
+        - jobId
+    ReportGeoJsonPointGeometryDto:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - Point
+        coordinates:
+          minItems: 2
+          maxItems: 2
+          example:
+            - 36.16
+            - 36.2
+          type: array
+          items:
+            type: number
+      required:
+        - type
+        - coordinates
+    ReportGeoJsonPropertiesDto:
+      type: object
+      properties:
+        crisisId:
+          type: string
+          format: uuid
+        damageLevel:
+          type: string
+          enum:
+            - MINIMAL
+            - PARTIAL
+            - COMPLETE
+        submittedAt:
+          type: string
+          format: date-time
+        isDuplicate:
+          type: boolean
+        version:
+          type: number
+          minimum: 1
+        infraType:
+          type: string
+          enum:
+            - RESIDENTIAL
+            - COMMERCIAL
+            - GOVERNMENT
+            - UTILITY
+            - TRANSPORT_COMMUNICATION
+            - COMMUNITY
+            - PUBLIC_RECREATION
+            - OTHER
+        locationText:
+          type: string
+          nullable: true
+      required:
+        - crisisId
+        - damageLevel
+        - submittedAt
+        - isDuplicate
+        - version
+        - infraType
+        - locationText
+    ReportGeoJsonFeatureDto:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - Feature
+        id:
+          type: string
+          format: uuid
+        geometry:
+          nullable: true
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/ReportGeoJsonPointGeometryDto'
+        properties:
+          $ref: '#/components/schemas/ReportGeoJsonPropertiesDto'
+      required:
+        - type
+        - id
+        - geometry
+        - properties
+    ReportGeoJsonMetaDto:
+      type: object
+      properties:
+        limit:
+          type: number
+          minimum: 1
+          example: 100
+        total:
+          type: number
+          minimum: 0
+          example: 87
+        nextCursor:
+          type: string
+          nullable: true
+          description: Opaque cursor for fetching the next page of reports
+      required:
+        - limit
+        - total
+        - nextCursor
+    ReportGeoJsonFeatureCollectionDto:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - FeatureCollection
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportGeoJsonFeatureDto'
+        meta:
+          $ref: '#/components/schemas/ReportGeoJsonMetaDto'
+      required:
+        - type
+        - features
+        - meta
+    ReportHistoryEntryDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: number
+          minimum: 1
+        damageLevel:
+          type: string
+          enum:
+            - MINIMAL
+            - PARTIAL
+            - COMPLETE
+        submittedAt:
+          type: string
+          format: date-time
+        isCurrent:
+          type: boolean
+      required:
+        - id
+        - version
+        - damageLevel
+        - submittedAt
+        - isCurrent
+    ReportHistoryResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportHistoryEntryDto'
+      required:
+        - success
+        - data
+    ReportDetailDataDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        crisisId:
+          type: string
+          format: uuid
+        damageLevel:
+          type: string
+          enum:
+            - MINIMAL
+            - PARTIAL
+            - COMPLETE
+        infraType:
+          type: string
+          enum:
+            - RESIDENTIAL
+            - COMMERCIAL
+            - GOVERNMENT
+            - UTILITY
+            - TRANSPORT_COMMUNICATION
+            - COMMUNITY
+            - PUBLIC_RECREATION
+            - OTHER
+        infraName:
+          type: string
+          nullable: true
+        crisisType:
+          type: string
+          enum:
+            - EARTHQUAKE
+            - FLOOD
+            - TSUNAMI
+            - HURRICANE_CYCLONE
+            - WILDFIRE
+            - EXPLOSION
+            - CHEMICAL_INCIDENT
+            - CONFLICT
+            - CIVIL_UNREST
+        hasDebris:
+          type: boolean
+        collectedAt:
+          type: string
+          format: date-time
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        electricityCondition:
+          type: string
+          enum:
+            - NO_DAMAGE
+            - MINOR_DAMAGE
+            - MODERATE_DAMAGE
+            - SEVERE_DAMAGE
+            - COMPLETELY_DESTROYED
+            - UNKNOWN
+        healthServicesFunctioning:
+          type: string
+          enum:
+            - FULLY_FUNCTIONAL
+            - PARTIALLY_FUNCTIONAL
+            - LARGELY_DISRUPTED
+            - NOT_FUNCTIONING
+            - UNKNOWN
+        pressingNeeds:
+          type: array
+          items:
+            type: string
+            enum:
+              - FOOD_WATER
+              - CASH_ASSISTANCE
+              - HEALTHCARE_MEDICINES
+              - SHELTER_REPAIR
+              - LIVELIHOODS_RESTORATION
+              - WASH
+              - BASIC_SERVICES
+              - PROTECTION_PSYCHOSOCIAL
+              - LOCAL_AUTHORITY_SUPPORT
+              - OTHER
+        pressingNeedsOther:
+          type: string
+          nullable: true
+        descriptionLang:
+          type: string
+          nullable: true
+        latitude:
+          type: number
+          nullable: true
+        longitude:
+          type: number
+          nullable: true
+        locationText:
+          type: string
+          nullable: true
+        buildingId:
+          type: string
+          nullable: true
+        photoUrl:
+          type: string
+          nullable: true
+        submittedAt:
+          type: string
+          format: date-time
+        isDuplicate:
+          type: boolean
+        version:
+          type: number
+          minimum: 1
+        supersededById:
+          type: string
+          nullable: true
+        extraFields:
+          type: object
+          additionalProperties: true
+          properties:
+            translations:
+              type: object
+              additionalProperties:
+                type: string
+      required:
+        - id
+        - crisisId
+        - damageLevel
+        - infraType
+        - crisisType
+        - hasDebris
+        - electricityCondition
+        - healthServicesFunctioning
+        - pressingNeeds
+        - submittedAt
+        - isDuplicate
+        - version
+        - extraFields
+    ReportDetailResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/ReportDetailDataDto'
+      required:
+        - success
+        - data
+    SubmitReportDataDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        photoUrl:
+          type: string
+        acknowledgment:
+          type: string
+        isDuplicate:
+          type: boolean
+        version:
+          type: number
+          minimum: 1
+      required:
+        - id
+        - photoUrl
+        - acknowledgment
+        - isDuplicate
+        - version
+    SubmitReportResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/SubmitReportDataDto'
+      required:
+        - success
+        - data
+    ReportAnonymizeDataDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        anonymizedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - anonymizedAt
+    ReportAnonymizeResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/ReportAnonymizeDataDto'
+      required:
+        - success
+        - data
+    ReportModerationDataDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        moderationStatus:
+          type: string
+          enum:
+            - PENDING
+            - FLAGGED
+            - UNDER_REVIEW
+            - APPROVED
+            - REJECTED
+        moderationNote:
+          type: string
+          nullable: true
+        moderatedAt:
+          type: string
+          format: date-time
+        moderatedBy:
+          type: string
+      required:
+        - id
+        - moderationStatus
+        - moderatedAt
+        - moderatedBy
+    ReportModerationResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/ReportModerationDataDto'
+      required:
+        - success
+        - data
+    ModerateReportDto:
+      type: object
+      properties:
+        moderationStatus:
+          type: string
+          enum:
+            - PENDING
+            - FLAGGED
+            - UNDER_REVIEW
+            - APPROVED
+            - REJECTED
+          description: New moderation status for the report
+          example: FLAGGED
+        moderationNote:
+          type: string
+          description: Optional note explaining the moderation decision
+          example: Suspected duplicate — same building reported 10 minutes earlier
+      required:
+        - moderationStatus
+    ModerationAuditEntryDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        reportId:
+          type: string
+          format: uuid
+        action:
+          type: string
+          example: REPORT_MODERATION_UPDATED
+        actorId:
+          type: string
+          example: admin-user
+        previousValue:
+          type: object
+          additionalProperties: true
+        newValue:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - reportId
+        - action
+        - actorId
+        - previousValue
+        - newValue
+        - createdAt
+    ModerationAuditPaginationDto:
+      type: object
+      properties:
+        page:
+          type: number
+          minimum: 1
+          example: 1
+        pageSize:
+          type: number
+          minimum: 1
+          example: 20
+        totalItems:
+          type: number
+          minimum: 0
+          example: 2
+        totalPages:
+          type: number
+          minimum: 0
+          example: 1
+      required:
+        - page
+        - pageSize
+        - totalItems
+        - totalPages
+    ModerationAuditResponseDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModerationAuditEntryDto'
+        pagination:
+          $ref: '#/components/schemas/ModerationAuditPaginationDto'
+      required:
+        - items
+        - pagination
+    ReporterProfileDataDto:
+      type: object
+      properties:
+        reporterId:
+          type: string
+        reportCount:
+          type: number
+          minimum: 0
+        badgeLevel:
+          type: string
+        lastActiveAt:
+          type: string
+          format: date-time
+      required:
+        - reporterId
+        - reportCount
+        - badgeLevel
+        - lastActiveAt
+    ReporterProfileResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/ReporterProfileDataDto'
+      required:
+        - success
+        - data
+    CrisisDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - EARTHQUAKE
+            - FLOOD
+            - TSUNAMI
+            - HURRICANE_CYCLONE
+            - WILDFIRE
+            - EXPLOSION
+            - CHEMICAL_INCIDENT
+            - CONFLICT
+            - CIVIL_UNREST
+        country:
+          type: string
+        region:
+          type: string
+          nullable: true
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: string
+          format: date-time
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        extentBBox:
+          minItems: 4
+          maxItems: 4
+          nullable: true
+          description: Bounding box [minLng, minLat, maxLng, maxLat] (WGS-84) used for footprint lookup
+          type: array
+          items:
+            type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - type
+        - country
+        - startedAt
+        - isActive
+        - extentBBox
+        - createdAt
+        - updatedAt
+    CrisisMutationResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/CrisisDto'
+      required:
+        - success
+        - data
+    ModularFieldDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        crisisId:
+          type: string
+          format: uuid
+        infraType:
+          type: string
+          enum:
+            - RESIDENTIAL
+            - COMMERCIAL
+            - GOVERNMENT
+            - UTILITY
+            - TRANSPORT_COMMUNICATION
+            - COMMUNITY
+            - PUBLIC_RECREATION
+            - OTHER
+        fieldKey:
+          type: string
+        fieldType:
+          type: string
+          enum:
+            - string
+            - number
+            - boolean
+        required:
+          type: boolean
+        labels:
+          type: object
+          nullable: true
+          additionalProperties:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - crisisId
+        - infraType
+        - fieldKey
+        - fieldType
+        - required
+        - createdAt
+    ModularFieldMutationResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/ModularFieldDto'
+      required:
+        - success
+        - data
+    ModularFieldListResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModularFieldDto'
+      required:
+        - success
+        - data
+    ModularSchemaDataDto:
+      type: object
+      properties:
+        crisisType:
+          type: string
+          enum:
+            - EARTHQUAKE
+            - FLOOD
+            - TSUNAMI
+            - HURRICANE_CYCLONE
+            - WILDFIRE
+            - EXPLOSION
+            - CHEMICAL_INCIDENT
+            - CONFLICT
+            - CIVIL_UNREST
+        infraType:
+          type: string
+          enum:
+            - RESIDENTIAL
+            - COMMERCIAL
+            - GOVERNMENT
+            - UTILITY
+            - TRANSPORT_COMMUNICATION
+            - COMMUNITY
+            - PUBLIC_RECREATION
+            - OTHER
+        requiredCoreFields:
+          type: array
+          items:
+            type: string
+        dynamicFields:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              key:
+                type: string
+              type:
+                type: string
+                enum:
+                  - string
+                  - number
+                  - boolean
+              required:
+                type: boolean
+              labels:
+                type: object
+                additionalProperties:
+                  type: string
+              placeholders:
+                type: object
+                additionalProperties:
+                  type: string
+            required:
+              - key
+              - type
+              - required
+              - labels
+              - placeholders
+      required:
+        - crisisType
+        - infraType
+        - requiredCoreFields
+        - dynamicFields
+    ModularSchemaResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/ModularSchemaDataDto'
+      required:
+        - success
+        - data
+    CrisisFootprintFeaturePropertiesDto:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+    CrisisFootprintGeometryDto:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - Polygon
+            - MultiPolygon
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: number
+      required:
+        - type
+        - coordinates
+    CrisisFootprintFeatureDto:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - Feature
+        id:
+          type: string
+        geometry:
+          $ref: '#/components/schemas/CrisisFootprintGeometryDto'
+        properties:
+          $ref: '#/components/schemas/CrisisFootprintFeaturePropertiesDto'
+      required:
+        - type
+        - id
+        - geometry
+        - properties
+    CrisisFootprintMetadataDto:
+      type: object
+      properties:
+        source:
+          type: string
+        reason:
+          type: string
+    CrisisFootprintFeatureCollectionDto:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - FeatureCollection
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/CrisisFootprintFeatureDto'
+        metadata:
+          $ref: '#/components/schemas/CrisisFootprintMetadataDto'
+      required:
+        - type
+        - features
+    HotspotDto:
+      type: object
+      properties:
+        h3Index:
+          type: string
+        centerLat:
+          type: number
+        centerLng:
+          type: number
+        count:
+          type: number
+          minimum: 1
+        avgDamageLevel:
+          type: number
+      required:
+        - h3Index
+        - centerLat
+        - centerLng
+        - count
+        - avgDamageLevel
+    HotspotResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/HotspotDto'
+      required:
+        - success
+        - data
+    ReportsByDayDto:
+      type: object
+      properties:
+        date:
+          type: string
+          example: '2026-04-16'
+        count:
+          type: number
+      required:
+        - date
+        - count
+    ByDamageLevelDto:
+      type: object
+      properties:
+        MINIMAL:
+          type: number
+        PARTIAL:
+          type: number
+        COMPLETE:
+          type: number
+      required:
+        - MINIMAL
+        - PARTIAL
+        - COMPLETE
+    ByInfraTypeDto:
+      type: object
+      properties:
+        type:
+          type: string
+        count:
+          type: number
+      required:
+        - type
+        - count
+    RecentReportDto:
+      type: object
+      properties:
+        id:
+          type: string
+        submittedAt:
+          type: string
+        damageLevel:
+          type: string
+        infraType:
+          type: string
+        locationText:
+          type: string
+          nullable: true
+      required:
+        - id
+        - submittedAt
+        - damageLevel
+        - infraType
+        - locationText
+    SummaryDataDto:
+      type: object
+      properties:
+        totalReports:
+          type: number
+        reportsByDay:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportsByDayDto'
+        byDamageLevel:
+          $ref: '#/components/schemas/ByDamageLevelDto'
+        byInfraType:
+          type: array
+          items:
+            $ref: '#/components/schemas/ByInfraTypeDto'
+        pendingModeration:
+          type: number
+        recentReports:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecentReportDto'
+      required:
+        - totalReports
+        - reportsByDay
+        - byDamageLevel
+        - byInfraType
+        - pendingModeration
+        - recentReports
+    SummaryResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/SummaryDataDto'
+      required:
+        - success
+        - data
+    CreateFieldMessageDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Client-generated stable message ID, reused on retry
+        deviceId:
+          type: string
+          format: uuid
+          description: Anonymous device identifier; keep private
+        content:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        type:
+          type: string
+          enum:
+            - TEXT
+            - SOS
+        createdAt:
+          type: string
+          format: date-time
+          description: Original client collection time
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+          description: Must be supplied with longitude
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+          description: Must be supplied with latitude
+      required:
+        - id
+        - deviceId
+        - content
+        - type
+        - createdAt
+    FieldMessageDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deviceId:
+          type: string
+          format: uuid
+        content:
+          type: string
+        type:
+          type: string
+          enum:
+            - TEXT
+            - SOS
+        createdAt:
+          type: string
+          format: date-time
+        receivedAt:
+          type: string
+          format: date-time
+        latitude:
+          type: number
+          nullable: true
+        longitude:
+          type: number
+          nullable: true
+      required:
+        - id
+        - deviceId
+        - content
+        - type
+        - createdAt
+        - receivedAt
+        - latitude
+        - longitude
+    FieldMessageResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/FieldMessageDto'
+      required:
+        - success
+        - data
+    FieldMessagesResponseDto:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldMessageDto'
+      required:
+        - success
+        - data

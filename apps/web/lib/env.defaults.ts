@@ -1,0 +1,2 @@
+export const DEFAULT_MAX_PHOTO_SIZE_MB = 5;
+export const DEFAULT_OFFLINE_MAX_ATTEMPTS = 5;

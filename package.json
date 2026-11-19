@@ -1,26 +1,14 @@
 {
-  "name": "resqnet",
-  "version": "1.0.0",
-  "description": "ResQNet – Offline-First Disaster Relief Coordination System",
+  "name": "crisismap-workspace",
+  "version": "0.3.0",
+  "private": true,
   "scripts": {
-    "start": "node serve.js",
-    "build:css": "tailwindcss -i ./src/css/input.css -o ./dist/css/styles.css --minify",
-    "watch:css": "tailwindcss -i ./src/css/input.css -o ./dist/css/styles.css --watch"
-  },
-  "keywords": [
-    "disaster-relief",
-    "offline-first",
-    "pwa",
-    "indexeddb",
-    "leaflet",
-    "emergency-response"
-  ],
-  "author": "ResQNet Engineering",
-  "license": "MIT",
-  "devDependencies": {
-    "autoprefixer": "^10.4.20",
-    "leaflet": "^1.9.4",
-    "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17"
+    "setup": "node scripts/workspace.mjs setup",
+    "dev": "node scripts/workspace.mjs dev",
+    "build": "node scripts/workspace.mjs build",
+    "start": "node scripts/workspace.mjs start",
+    "type-check": "node scripts/workspace.mjs type-check",
+    "db:deploy": "node scripts/workspace.mjs db:deploy",
+    "infra:up": "node scripts/workspace.mjs infra:up"
   }
 }

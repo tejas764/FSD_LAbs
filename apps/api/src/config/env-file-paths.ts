@@ -1,0 +1,1 @@
+export const API_ENV_FILE_PATHS: string[] = [".env.local"];

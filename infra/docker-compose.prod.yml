@@ -1,0 +1,42 @@
+# Production overrides for docker-compose.yml.
+# Usage: docker compose -f infra/docker-compose.yml -f infra/docker-compose.prod.yml up -d
+#
+# In production:
+# - Internal services (postgres, redis) are NOT exposed on host ports.
+# - MinIO is replaced by Cloudflare R2 (STORAGE_ENDPOINT in env).
+# - LibreTranslate and Mailhog are removed (use hosted SMTP and translation API).
+# - All containers restart automatically on failure.
+
+services:
+
+  postgres:
+    ports: !reset []          # do not expose postgres port on the host
+    restart: always
+
+  redis:
+    ports: !reset []          # do not expose redis port on the host
+    restart: always
+
+  minio:
+    ports: !reset []          # do not expose MinIO ports on the host
+    restart: always
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_ACCESS_KEY_ID}
+      MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_ACCESS_KEY}
+
+  minio-init:
+    command:
+      - >
+        mc alias set local http://minio:9000 ${STORAGE_ACCESS_KEY_ID} ${STORAGE_SECRET_ACCESS_KEY} --quiet &&
+        mc mb --ignore-existing local/${STORAGE_BUCKET} &&
+        echo "Bucket ${STORAGE_BUCKET} ready."
+
+  # LibreTranslate and Mailhog are not included in production.
+  # Remove them by overriding with an empty service that has no image.
+  libretranslate:
+    profiles:
+      - dev-only   # excluded unless --profile dev-only is passed
+
+  mailhog:
+    profiles:
+      - dev-only   # excluded unless --profile dev-only is passed

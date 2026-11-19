@@ -1,0 +1,21 @@
+steps:
+  - name: Set up Node.js
+    uses: actions/setup-node@v4
+    with:
+      node-version-file: .node-version
+      cache: npm
+
+  - name: Install dependencies
+    run: cd apps/web && npm ci
+
+  - name: Start infrastructure
+    run: docker compose -f infra/docker-compose.yml up -d
+
+  - name: Wait for PostgreSQL
+    run: |
+      until docker compose -f infra/docker-compose.yml exec -T postgres pg_isready -U crisismap; do
+        sleep 1
+      done
+
+  - name: Run migrations
+    run: cd apps/web && npx prisma migrate deploy

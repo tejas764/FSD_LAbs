@@ -1,0 +1,114 @@
+# Local development infrastructure for CrisisMap.
+# All services have Docker-based equivalents — no cloud credentials required.
+# Start with: docker compose -f infra/docker-compose.yml up -d
+
+services:
+  # ── PostgreSQL + PostGIS ──────────────────────────────────────────────────
+  postgres:
+    image: postgis/postgis:15-3.4
+    environment:
+      POSTGRES_USER: crisismap
+      POSTGRES_PASSWORD: crisismap
+      POSTGRES_DB: crisismap
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crisismap -d crisismap"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  # ── Redis (BullMQ queues + rate limiting) ─────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── MinIO (local Cloudflare R2 equivalent) ────────────────────────────────
+  minio:
+    image: pgsty/silo:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000" # S3 API
+      - "9001:9001" # Console UI
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  # Creates the crisismap-reports bucket on first start.
+  # Exits with 0 on success; docker compose ps will show it as "exited (0)".
+  minio-init:
+    image: pgsty/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >
+        mc alias set local http://minio:9000 minioadmin minioadmin --quiet &&
+        mc mb --ignore-existing local/crisismap-reports &&
+        mc anonymous set download local/crisismap-reports &&
+        echo "Bucket crisismap-reports ready (public download)."
+    restart: "no"
+
+  # ── LibreTranslate (local translation API) ────────────────────────────────
+  # Downloads language models on first run — may take several minutes.
+  # Models are cached in the libretranslate_data volume for subsequent starts.
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    environment:
+      LT_LOAD_ONLY: "en,ar,zh,fr,ru,es"
+      LT_DISABLE_FILES_TRANSLATE: "true"
+      LT_SUGGESTIONS: "false"
+    ports:
+      - "5000:5000"
+    volumes:
+      - libretranslate_data:/home/libretranslate/.local
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'curl -sf http://localhost:5000/languages | grep -q ''"en"'' || exit 1',
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 60 # up to 10 minutes — model download on first run
+      start_period: 180s # 3-minute grace period before health checks count
+    restart: unless-stopped
+
+  # ── Mailhog (local SMTP + web UI) ─────────────────────────────────────────
+  # SMTP: localhost:1025  |  Web UI: http://localhost:8025
+  mailhog:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  libretranslate_data:

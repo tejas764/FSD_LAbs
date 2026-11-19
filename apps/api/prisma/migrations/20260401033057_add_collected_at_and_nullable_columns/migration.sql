@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Report" ADD COLUMN     "collectedAt" TIMESTAMP(3),
+ALTER COLUMN "photoKey" DROP NOT NULL,
+ALTER COLUMN "latitude" DROP NOT NULL,
+ALTER COLUMN "longitude" DROP NOT NULL;

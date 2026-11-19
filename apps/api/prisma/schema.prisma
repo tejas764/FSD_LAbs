@@ -1,0 +1,420 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum FieldMessageType {
+  TEXT
+  SOS
+}
+
+/// Durable online mirror of field notes queued on an anonymous device.
+/// A stored SOS is not a confirmation of emergency service delivery.
+model FieldMessage {
+  id         String           @id @db.Uuid
+  deviceId   String           @db.Uuid
+  content    String           @db.VarChar(2000)
+  type       FieldMessageType
+  createdAt  DateTime
+  receivedAt DateTime         @default(now())
+  latitude   Float?
+  longitude  Float?
+
+  @@index([deviceId, receivedAt, id])
+}
+
+enum DamageLevel {
+  MINIMAL
+  PARTIAL
+  COMPLETE
+}
+
+enum InfraType {
+  RESIDENTIAL
+  COMMERCIAL
+  GOVERNMENT
+  UTILITY
+  TRANSPORT_COMMUNICATION
+  COMMUNITY
+  PUBLIC_RECREATION
+  OTHER
+}
+
+enum CrisisType {
+  EARTHQUAKE
+  FLOOD
+  TSUNAMI
+  HURRICANE_CYCLONE
+  WILDFIRE
+  EXPLOSION
+  CHEMICAL_INCIDENT
+  CONFLICT
+  CIVIL_UNREST
+}
+
+/// UNDP Appendix 1 — Question 1: Electricity Infrastructure Condition
+enum ElectricityCondition {
+  NO_DAMAGE
+  MINOR_DAMAGE
+  MODERATE_DAMAGE
+  SEVERE_DAMAGE
+  COMPLETELY_DESTROYED
+  UNKNOWN
+}
+
+/// UNDP Appendix 1 — Question 2: Health Services Functioning
+enum HealthServicesFunctioning {
+  FULLY_FUNCTIONAL
+  PARTIALLY_FUNCTIONAL
+  LARGELY_DISRUPTED
+  NOT_FUNCTIONING
+  UNKNOWN
+}
+
+/// Moderation status set by admin reviewers
+enum ModerationStatus {
+  PENDING
+  FLAGGED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum AuditAction {
+  REPORT_MODERATION_UPDATED
+  REPORT_DELETED
+  REPORT_ANONYMIZED
+}
+
+enum BadgeLevel {
+  NEWCOMER
+  CONTRIBUTOR
+  TRUSTED
+  EXPERT
+}
+
+/// UNDP Appendix 1 — Question 3: Most Pressing Needs (multi-select stored as array)
+enum PressingNeed {
+  FOOD_WATER
+  CASH_ASSISTANCE
+  HEALTHCARE_MEDICINES
+  SHELTER_REPAIR
+  LIVELIHOODS_RESTORATION
+  WASH
+  BASIC_SERVICES
+  PROTECTION_PSYCHOSOCIAL
+  LOCAL_AUTHORITY_SUPPORT
+  OTHER
+}
+
+model Crisis {
+  id                 String     @id @default(uuid())
+  name               String
+  type               CrisisType
+  country            String
+  region             String?
+  extentBBoxMinLat   Float?
+  extentBBoxMinLng   Float?
+  extentBBoxMaxLat   Float?
+  extentBBoxMaxLng   Float?
+  startedAt          DateTime
+  endedAt            DateTime?
+  description        String?
+  isActive           Boolean    @default(true)
+  reports            Report[]
+  modularFields      ModularField[]
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+}
+
+/// Nullable collectedAt is intentional: pre-API seed rows lack this value.
+/// All new submissions via the API always supply it (enforced by Zod).
+model Report {
+  id              String      @id @default(uuid())
+  crisisId        String
+  crisis          Crisis      @relation(fields: [crisisId], references: [id])
+  damageLevel     DamageLevel
+  infraType       InfraType
+  infraName       String?
+  crisisType      CrisisType
+  hasDebris       Boolean     @default(false)
+  collectedAt     DateTime?
+  description     String?
+  descriptionLang String?     @default("en")
+  extraFields     Json?
+  /// UNDP Appendix 1 mandatory questions
+  electricityCondition      ElectricityCondition
+  healthServicesFunctioning HealthServicesFunctioning
+  pressingNeeds             PressingNeed[]
+  pressingNeedsOther        String?
+  photoKey        String?
+  thumbnailKey    String?
+  latitude        Float?
+  longitude       Float?
+  /// location geometry(Point,4326) column exists in DB — managed via raw SQL, not Prisma
+  buildingId      String?
+  locationText    String?
+  aiDamageLevel   DamageLevel?
+  aiConfidence    Float?
+  aiAnalyzedAt    DateTime?
+  moderationStatus   ModerationStatus @default(PENDING)
+  moderationNote     String?
+  moderatedAt        DateTime?
+  moderatedBy        String?
+  version         Int         @default(1)
+  supersededById  String?
+  supersededBy    Report?     @relation("Versions", fields: [supersededById], references: [id])
+  previousVersions Report[]   @relation("Versions")
+  deviceHash      String?
+  ipHash          String?
+  idempotencyKey  String?  @unique
+  isDuplicate     Boolean     @default(false)
+  isVerified      Boolean     @default(false)
+  submittedAt     DateTime    @default(now())
+  deletedAt       DateTime?
+  anonymizedAt    DateTime?
+  auditLogs       AuditLog[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model AuditLog {
+  id            String      @id @default(uuid())
+  reportId      String
+  report        Report      @relation(fields: [reportId], references: [id])
+  action        AuditAction
+  actorId       String
+  previousValue Json
+  newValue      Json
+  createdAt     DateTime    @default(now())
+
+  @@index([reportId, createdAt])
+}
+
+model BuildingFootprint {
+  id   String  @id
+  name String?
+  /// geometry(Point,4326) column exists in DB — managed via raw SQL
+
+  @@map("building_footprint")
+}
+
+model ReporterProfile {
+  reporterId   String     @id
+  reportCount  Int        @default(0)
+  badgeLevel   BadgeLevel @default(NEWCOMER)
+  lastActiveAt DateTime   @default(now())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model ModularField {
+  id        String   @id @default(uuid())
+  crisisId  String
+  crisis    Crisis   @relation(fields: [crisisId], references: [id])
+  infraType InfraType
+  fieldKey  String
+  fieldType String   @default("string")
+  required  Boolean  @default(false)
+  labels    Json?
+  createdAt DateTime @default(now())
+
+  @@unique([crisisId, infraType, fieldKey])
+}
+
+// ─── better-auth tables ────────────────────────────────────────────────────
+// Managed by better-auth Prisma adapter in apps/web.
+// Migration is owned here (apps/api owns all migrations).
+
+model User {
+  id            String    @id
+  name          String?
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          String?
+  banned        Boolean?  @default(false)
+  banReason     String?
+  banExpires    DateTime?
+  isAnonymous   Boolean?  @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  volunteerProfile VolunteerProfile?
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                       String    @id
+  accountId                String
+  providerId               String
+  userId                   String
+  user                     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken              String?
+  refreshToken             String?
+  idToken                  String?
+  accessTokenExpiresAt     DateTime?
+  refreshTokenExpiresAt    DateTime?
+  scope                    String?
+  password                 String?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+enum VolunteerVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum VolunteerAvailability {
+  AVAILABLE
+  BUSY
+  OFFLINE
+}
+
+enum VolunteerTaskStatus {
+  OPEN
+  CLOSED
+}
+
+enum VolunteerAssignmentStatus {
+  OFFERED
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETION_SUBMITTED
+  COMPLETED
+  DECLINED
+}
+
+enum VolunteerCheckInStatus {
+  SAFE
+  NEED_HELP
+}
+
+model VolunteerProfile {
+  id                    String @id @default(uuid())
+  userId                String @unique
+  user                  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone                 String @db.VarChar(40)
+  location              String @db.VarChar(200)
+  bio                   String @default("") @db.VarChar(2000)
+  skills                String[]
+  emergencyContactName  String @default("") @db.VarChar(100)
+  emergencyContactPhone String @default("") @db.VarChar(40)
+  verificationStatus    VolunteerVerificationStatus @default(PENDING)
+  verifiedBy            String?
+  verifiedAt            DateTime?
+  verifiedName          String? @db.VarChar(100)
+  availability          VolunteerAvailability @default(OFFLINE)
+  assignments           VolunteerAssignment[]
+  shifts                VolunteerShift[]
+  checkIns              VolunteerCheckIn[]
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([verificationStatus, availability])
+}
+
+model VolunteerTask {
+  id                   String @id @default(uuid())
+  title                String @db.VarChar(160)
+  description          String @db.VarChar(4000)
+  location             String @db.VarChar(200)
+  requiredSkills       String[]
+  requiresVerification Boolean @default(true)
+  capacity             Int @default(1)
+  status               VolunteerTaskStatus @default(OPEN)
+  startsAt             DateTime?
+  endsAt               DateTime?
+  createdBy            String
+  assignments          VolunteerAssignment[]
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([status, createdAt])
+}
+
+model VolunteerAssignment {
+  id                String @id @default(uuid())
+  taskId            String
+  task              VolunteerTask @relation(fields: [taskId], references: [id], onDelete: Restrict)
+  volunteerId       String
+  volunteer         VolunteerProfile @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
+  status            VolunteerAssignmentStatus @default(OFFERED)
+  progress          Int @default(0)
+  progressNotes     String @default("") @db.VarChar(2000)
+  completionSummary String? @db.VarChar(4000)
+  submittedHours    Float?
+  verifiedHours     Float @default(0)
+  reviewNote        String? @db.VarChar(2000)
+  assignedBy        String?
+  reviewedBy        String?
+  assignedAt        DateTime @default(now())
+  acceptedAt        DateTime?
+  completedAt       DateTime?
+  reviewedAt        DateTime?
+  updatedAt         DateTime @updatedAt
+
+  @@unique([taskId, volunteerId])
+  @@index([volunteerId, status])
+}
+
+model VolunteerShift {
+  id          String @id @default(uuid())
+  volunteerId String
+  volunteer   VolunteerProfile @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
+  title       String @db.VarChar(160)
+  location    String @db.VarChar(200)
+  startsAt    DateTime
+  endsAt      DateTime
+  createdBy   String
+  createdAt   DateTime @default(now())
+
+  @@index([volunteerId, startsAt])
+}
+
+model VolunteerCheckIn {
+  id          String @id @default(uuid())
+  volunteerId String
+  volunteer   VolunteerProfile @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
+  status      VolunteerCheckInStatus
+  notes       String @default("") @db.VarChar(2000)
+  latitude    Float?
+  longitude   Float?
+  createdAt   DateTime @default(now())
+
+  @@index([volunteerId, createdAt])
+}

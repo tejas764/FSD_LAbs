@@ -1,0 +1,184 @@
+name: Deploy API
+
+# Triggers only on pushes to main that touch the API, infra, or the OpenAPI contract.
+# apps/web-only changes do NOT trigger this workflow.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/api/**"
+      - "infra/**"
+      - "docs/openapi.yaml"
+  # Allows manual re-deploy from GitHub UI → Actions → Deploy API → Run workflow
+  workflow_dispatch:
+
+env:
+  # Force JS-based actions (e.g. actions/checkout) to run on Node 24
+  # instead of the deprecated Node 20 runtime to silence runner warnings.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  test:
+    name: test · type-check · lint
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: postgresql://crisismap:crisismap@localhost:5432/crisismap
+      API_PORT: "4000"
+      REDIS_URL: redis://localhost:6379
+      NODE_ENV: test
+
+    services:
+      postgres:
+        image: postgis/postgis:15-3.4
+        env:
+          POSTGRES_USER: crisismap
+          POSTGRES_PASSWORD: crisismap
+          POSTGRES_DB: crisismap
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/api
+        run: npm ci
+
+      - name: Generate Prisma client
+        working-directory: apps/api
+        run: npm run prisma:generate
+
+      - name: Run migrations (CI database)
+        working-directory: apps/api
+        run: npx prisma migrate deploy
+
+      - name: Type check
+        working-directory: apps/api
+        run: npm run type-check
+
+      - name: Lint
+        working-directory: apps/api
+        run: npm run lint
+
+      - name: Unit tests
+        working-directory: apps/api
+        run: npm test
+
+      - name: E2E tests
+        working-directory: apps/api
+        run: npm run test:e2e
+
+      # ── Contract gate ─────────────────────────────────────────────────────
+      # Regenerate docs/openapi.yaml from decorators and fail if the committed
+      # file is stale. Forces devs to keep the contract in sync with code.
+      - name: Export OpenAPI document
+        working-directory: apps/api
+        env:
+          DATABASE_URL: postgresql://crisismap:crisismap@localhost:5432/crisismap
+        run: npm run openapi:export
+
+      - name: Assert OpenAPI contract is up-to-date
+        run: git diff --exit-code docs/openapi.yaml
+
+  build-and-deploy:
+    name: build image · push ECR · deploy ECS
+    runs-on: ubuntu-latest
+    needs: test
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        id: build-image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        working-directory: apps/api
+        run: |
+          docker build \
+            --tag "$REGISTRY/$REPOSITORY:$IMAGE_TAG" \
+            --tag "$REGISTRY/$REPOSITORY:latest" \
+            --file Dockerfile \
+            .
+          docker push "$REGISTRY/$REPOSITORY:$IMAGE_TAG"
+          docker push "$REGISTRY/$REPOSITORY:latest"
+          echo "image=$REGISTRY/$REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Download current ECS task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition "${{ vars.ECS_TASK_DEFINITION_FAMILY }}" \
+            --query taskDefinition > task-definition.json
+
+      - name: Remove read-only fields from task definition
+        run: |
+          python3 - <<'PY'
+          import json
+
+          with open("task-definition.json", "r", encoding="utf-8") as f:
+              task_def = json.load(f)
+
+          for key in [
+              "taskDefinitionArn",
+              "revision",
+              "status",
+              "requiresAttributes",
+              "compatibilities",
+              "registeredAt",
+              "registeredBy",
+          ]:
+              task_def.pop(key, None)
+
+          with open("task-definition.json", "w", encoding="utf-8") as f:
+              json.dump(task_def, f)
+          PY
+
+      - name: Render task definition with new image
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ vars.ECS_CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy task definition to ECS service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ vars.ECS_SERVICE_NAME }}
+          cluster: ${{ vars.ECS_CLUSTER_NAME }}
+          wait-for-service-stability: true
+
+      - name: Smoke-test health endpoint
+        run: |
+          curl --fail --retry 8 --retry-delay 10 \
+            "${{ vars.API_HEALTHCHECK_URL }}"

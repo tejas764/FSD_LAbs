@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    "apps/api": {
+      "release-type": "node",
+      "component": "api",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true,
+      "tag-separator": "-"
+    },
+    "apps/web": {
+      "release-type": "node",
+      "component": "web",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": true,
+      "tag-separator": "-"
+    }
+  },
+  "pull-request-title-pattern": "chore: release ${component} ${version}"
+}
